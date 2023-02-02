@@ -1,0 +1,64 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.0.1'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id "org.openapi.generator" version "6.2.1"
+}
+
+group = 'com.augtheo'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+openApiGenerate {
+    generatorName = 'spring'
+    inputSpec = 'src/main/resources/openapi-blitter-0.2.0-resolved.yaml'
+    packageName = 'com.augtheo.blitter'
+    configOptions = [
+            interfaceOnly: 'true',
+            openApiNullable: 'false',
+            useBeanValidation: 'false',
+            documentationProvider : 'none',
+            packageName : 'com.augtheo.blitter',
+            apiPackage : 'com.augtheo.blitter.api',
+            modelPackage : 'com.augtheo.blitter.model',
+            useSpringBoot3 : 'true',
+            skipDefaultInterface : 'true'
+    ]
+    importMappings = [
+            'java.time.OffsetDateTime' : 'java.time.LocalDateTime'
+    ]
+    typeMappings = [
+            'OffsetDateTime' : 'LocalDateTime'
+    ]
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'org.postgresql:postgresql'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+}
+
+sourceSets.main.java.srcDirs += 'build/generate-resources/main/src/main/java'
+
+compileJava.dependsOn(tasks.openApiGenerate)
+
+
+tasks.named('test') {
+    useJUnitPlatform()
+}

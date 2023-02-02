@@ -1,0 +1,357 @@
+---
+openapi: 3.0.0
+info:
+  title: blitter
+  description: The API for the blitter project
+  version: 0.2.0
+servers:
+  - url: https://localhost:8080
+#- url: https://virtserver.swaggerhub.com/augustine98/birdPerson/0.2.0
+    description: SwaggerHub API Auto Mocking
+paths:
+  /register:
+    post:
+      tags:
+      - Registration
+      summary: Registers a new user
+      requestBody:
+        description: A JSON object containing the nickName, password
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterReq'
+        required: true
+      responses:
+        "200":
+          description: Successfully registered
+      security: []
+  /login:
+    post:
+      tags:
+      - Authentication
+      summary: Logs in and returns the authentication  cookie
+      requestBody:
+        description: A JSON object containing the login and password.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginReq'
+        required: true
+      responses:
+        "200":
+          description: |
+            Successfully authenticated. The session ID is returned in a cookie named `JSESSIONID`. You need to include this cookie in subsequent requests.
+          headers:
+            Set-Cookie:
+              style: simple
+              explode: false
+              schema:
+                type: string
+                example: JSESSIONID=abcde12345; Path=/; HttpOnly
+      security: []
+  /bleats:
+    get:
+      tags:
+      - Bleats
+      description: returns all registered bleats
+      operationId: getBleats
+      responses:
+        "200":
+          description: All the bleats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BleatsRes'
+      x-swagger-router-controller: Bleats
+    post:
+      tags:
+      - Bleats
+      description: publish a bleat
+      operationId: postBleat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BleatReq'
+            example:
+              message: This is a new bleat
+              author: Woody
+      responses:
+        "200":
+          description: Return bleat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BleatRes'
+  /bleats/{id}:
+    get:
+      tags:
+        - Bleats
+      description: returns a bleat
+      operationId: getBleat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: long
+          example: 10
+      responses:
+        "200":
+          description: Bleat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BleatRes'
+      x-swagger-router-controller: Bleats
+    put:
+      tags:
+      - Bleats
+      operationId: updateBleat
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: 10
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                message:
+                  type: string
+            example:
+              message: This is a new bleat
+              author: Woody
+      responses:
+        "200":
+          description: Return bleat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BleatRes'
+      x-swagger-router-controller: Bleats
+    delete:
+      tags:
+        - Bleats
+      operationId: deleteBleat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+          example: 10
+      responses:
+        "200":
+          description: Successfully Deleted
+      x-swagger-router-controller: Bleats
+  /bleats/{id}/toggleLike:
+    post:
+      tags:
+        - Favourite
+      operationId: toggleLikeBleat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: long
+          example: 10
+      responses:
+        "200":
+          description: Successfully toggled like
+          content:
+            application/json:
+              schema:
+                properties:
+                  likeCount:
+                    type: int
+                  authorLiked:
+                    type: boolean
+
+      x-swagger-router-controller: Bleats
+  /bleats/{id}/reply:
+    get:
+      tags:
+        - Bleats
+      description: returns all the replies to this bleat
+      operationId: getBleatReplies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: long
+          example: 10
+      responses:
+        "200":
+          description: Bleat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BleatsRes'
+      x-swagger-router-controller: Bleats
+    post:
+      tags:
+        - Bleats
+      description: publish a reply to a bleat
+      operationId: replyBleat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: long
+          example: 10
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BleatReq'
+            example:
+              message: This is a reply to a bleat
+      responses:
+        "200":
+          description: Return bleat
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BleatRes'
+  /users/{username}:
+    get:
+      tags:
+      - Authors
+      description: returns a specific author
+      operationId: getAuthor
+      parameters:
+      - name: username
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          example: "nate"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorRes'
+  /users/{username}/bleats:
+    get:
+      tags:
+        - Authors
+      description: returns the list of  bleats by the author
+      parameters:
+        - name: username
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+            example: "nate"
+      responses:
+        "200":
+          description: All the bleats posted by author
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BleatsRes'
+  /users/{username}/liked:
+    get:
+      tags:
+      - Authors
+      description: returns the list of liked bleats by the author
+      parameters:
+      - name: username
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+          example: "nate"
+      responses:
+        "200":
+          description: All the bleats liked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BleatsRes'
+components:
+  schemas:
+    RegisterReq:
+      type: object
+      properties:
+        username:
+          type: string
+        name:
+          type: string
+        password:
+          type: string
+    LoginReq:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    BleatReq:
+      type: object
+      properties:
+        message:
+          type: string
+    BleatRes:
+      type: object
+      properties:
+        id:
+          type: long
+        message:
+          type: string
+        author_username:
+          type: string
+        author_name:
+          type: string
+        createdDate:
+          type: string
+          format: date-time
+        lastModifiedDate:
+          type: string
+          format: date-time
+        likeCount:
+          type: integer
+        authorLiked:
+          type: boolean
+        replyCount:
+          type: integer
+    BleatsRes:
+      type: array
+      items:
+        $ref: '#/components/schemas/BleatRes'
+    AuthorRes:
+      type: object
+      properties:
+        id:
+          type: long
+        username:
+          type: string
+        name:
+          type: string

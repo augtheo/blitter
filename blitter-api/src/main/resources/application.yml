@@ -1,0 +1,18 @@
+spring:
+  # datasource:
+  #   username: rick
+  #   url: jdbc:postgresql://localhost:5432/schwifty
+  #   password: portalgun
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: 'true'
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: 'true'
+jwt:
+  public:
+    key: classpath:app.pub
+  private:
+    key: classpath:app.key

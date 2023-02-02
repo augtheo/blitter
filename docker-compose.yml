@@ -1,0 +1,62 @@
+services:
+  blitter-api:
+    build: blitter-api
+    restart: always
+    # secrets:
+    #   - db-password
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/schwifty
+      # - SPRING_PROFILES_ACTIVE=ssl
+    ports:
+      - 8080:8080
+    networks:
+      - react-spring
+      - spring-postgresql
+    depends_on: 
+      - db
+        # condition: service_healthy
+  db:
+    image: postgres
+    ports:
+      - 5342:5342
+    environment:
+      - POSTGRES_PASSWORD=portalgun
+      - POSTGRES_USER=rick
+      - POSTGRES_DB=schwifty
+    # restart: always
+    # healthcheck:
+    #   test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
+    #   interval: 3s
+    #   retries: 5
+    #   start_period: 30s
+    # secrets:
+    #   - db-password
+    # volumes:
+    #   - db-data:/var/lib/mysql
+    networks:
+      - spring-postgresql
+  blitter-web:
+    build:
+      context: blitter-web
+      # target: development
+    ports:
+      - 3000:3000
+    # volumes:
+    #   - ./blitter-web/src:/code/src
+    #   - /project/node_modules
+    networks:
+      - react-spring
+    depends_on:
+      - blitter-api
+    # expose:
+    #   - 3306
+    #   - 33060
+# volumes:
+#   db-data: {}
+# secrets:
+#   db-password:
+#     file: db/password.txt
+networks:
+  react-spring: {}
+  spring-postgresql: {}
+

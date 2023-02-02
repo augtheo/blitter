@@ -1,0 +1,7 @@
+server:
+  ssl:
+    enabled: true
+    key-store-type: PKCS12
+    key-store: classpath:keystore/blitter.p12
+    key-store-password: portalgun
+    key-alias: blitter
