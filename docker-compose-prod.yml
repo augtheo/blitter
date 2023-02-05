@@ -1,0 +1,7 @@
+services:
+  blitter-api:
+    environment:
+      - SPRING_PROFILES_ACTIVE=ssl
+  blitter-web:
+    build:
+      target: prod

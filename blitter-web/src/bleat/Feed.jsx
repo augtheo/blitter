@@ -84,7 +84,7 @@ export default function Feed() {
   const [someBleat, setSomeBleat] = useState({});
   const [bleats, setBleats] = useState([]);
   useEffect(() => {
-    if (Object.keys(someBleat).length != 0)
+    if (Object.keys(someBleat).length !== 0)
       setBleats((prevBleats) => [someBleat, ...prevBleats]);
   }, [someBleat]);
   return (

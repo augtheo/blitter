@@ -1,6 +1,6 @@
-import axios from '../utils/axios';
-import BleatCard from './BleatCard';
-import { useEffect, useState } from 'react';
+import axios from '../utils/axios'
+import BleatCard from './BleatCard'
+import { useEffect} from 'react'
 
 export default function BleatList({ bleats, setBleats }) {
   useEffect(() => {
@@ -14,14 +14,14 @@ export default function BleatList({ bleats, setBleats }) {
             Authorization:
               'Bearer ' + localStorage.getItem('bird-person-web.auth.token'),
           },
-        });
-        setBleats(response.data);
+        })
+        setBleats(response.data)
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
-    };
-    f();
-  }, []);
+    }
+    f()
+  }, [])
 
   return (
     bleats &&
@@ -33,7 +33,7 @@ export default function BleatList({ bleats, setBleats }) {
           setBleats={setBleats}
           isBleatView={false}
         />
-      );
+      )
     })
-  );
+  )
 }

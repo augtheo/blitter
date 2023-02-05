@@ -1,4 +1,3 @@
-import Dummy from './Dummy';
 import FourZeroFour from './FourZeroFour';
 import NavBar from './NavBar';
 import Landing from './auth/Landing';
@@ -35,7 +34,6 @@ export default function App() {
         <Route path='/users/:id' element={<User />} />
         <Route path='/home' element={<Feed />} />
       </Route>
-      <Route path='/dummy' element={<Dummy />} />
       <Route path='*' element={<FourZeroFour />} />
     </Routes>
   );
