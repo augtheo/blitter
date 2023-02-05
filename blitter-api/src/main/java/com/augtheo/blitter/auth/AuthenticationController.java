@@ -16,38 +16,35 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class AuthenticationController {
 
+  private final JwtEncoder jwtEncoder;
 
-	private final JwtEncoder jwtEncoder;
+  @Autowired
+  AuthenticationController(JwtEncoder jwtEncoder) {
+    this.jwtEncoder = jwtEncoder;
+  }
 
-	@Autowired
-	AuthenticationController(JwtEncoder jwtEncoder) {
-		this.jwtEncoder = jwtEncoder;
-	}
+  @PostMapping("/auth")
+  public Map<String, String> login(Authentication authentication) {
+    Instant now = Instant.now();
+    long expiry = 60 * 60;
 
-	@PostMapping("/auth")
-	public Map<String, String> login(Authentication authentication) {
-		Instant now = Instant.now();
-		long expiry = 60 * 60;
+    String scope =
+        authentication.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.joining(" "));
 
-		String scope = authentication
-				.getAuthorities()
-				.stream()
-				.map(GrantedAuthority::getAuthority)
-				.collect(Collectors.joining(" "));
+    Author author = (Author) authentication.getPrincipal();
 
-		//
-		Author author = (Author) authentication.getPrincipal();
+    JwtClaimsSet claims =
+        JwtClaimsSet.builder()
+            .issuer("self")
+            .issuedAt(now)
+            .expiresAt(now.plusSeconds(expiry))
+            .subject(authentication.getName())
+            .claim("scope", scope)
+            .claim("author_id", author.getId())
+            .build();
 
-		JwtClaimsSet claims = JwtClaimsSet.builder()
-				.issuer("self")
-				.issuedAt(now)
-				.expiresAt(now.plusSeconds(expiry))
-				.subject(authentication.getName())
-				.claim("scope", scope)
-				.claim("author_id" , author.getId())
-				.build();
-
-		return Map.of("jwt" , this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue());
-
-	}
+    return Map.of("jwt", this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue());
+  }
 }

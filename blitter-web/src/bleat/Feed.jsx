@@ -1,7 +1,7 @@
-import BleatList from './BleatList';
-import axios from '../utils/axios';
-import { useState, useEffect } from 'react';
 import PaginationFooter from '../PaginationFooter';
+import axios from '../utils/axios';
+import BleatList from './BleatList';
+import { useState, useEffect } from 'react';
 
 function PublishBleat({ setSomeBleat }) {
   const handleSubmit = async (event) => {
@@ -88,10 +88,10 @@ export default function Feed() {
       setBleats((prevBleats) => [someBleat, ...prevBleats]);
   }, [someBleat]);
   return (
-    <div className='flex flex-col grow min-h-screen'>
-      <div className='grow bg-gray-50 dark:bg-black' >
-      <PublishBleat setSomeBleat={setSomeBleat} />
-      <BleatList bleats={bleats} setBleats={setBleats} />
+    <div className='flex min-h-screen grow flex-col'>
+      <div className='grow bg-gray-50 dark:bg-black'>
+        <PublishBleat setSomeBleat={setSomeBleat} />
+        <BleatList bleats={bleats} setBleats={setBleats} />
       </div>
       <PaginationFooter />
     </div>

@@ -9,12 +9,13 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface BleatRepository extends JpaRepository<Bleat, Long> {
 
-	Optional<Bleat> findBleatById(Long id);
-	List<Bleat> findAllByOrderByLastModifiedDateDesc();
+  Optional<Bleat> findBleatById(Long id);
 
-	List<Bleat> findAllByAuthor(Author author);
+  List<Bleat> findAllByOrderByLastModifiedDateDesc();
 
-	List<Bleat> findAllByParent(Bleat parent);
+  List<Bleat> findAllByAuthor(Author author);
 
-	Long countByParent(Bleat parent);
+  List<Bleat> findAllByParent(Bleat parent);
+
+  Long countByParent(Bleat parent);
 }

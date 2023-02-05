@@ -5,7 +5,9 @@ services:
     # secrets:
     #   - db-password
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/schwifty
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASS}
       # - SPRING_PROFILES_ACTIVE=ssl
     ports:
       - 8080:8080
@@ -13,26 +15,24 @@ services:
       - react-spring
       - spring-postgresql
     depends_on: 
-      - db
-        # condition: service_healthy
+      db:
+        condition: service_healthy
   db:
     image: postgres
     ports:
       - 5342:5342
     environment:
-      - POSTGRES_PASSWORD=portalgun
-      - POSTGRES_USER=rick
-      - POSTGRES_DB=schwifty
-    # restart: always
-    # healthcheck:
-    #   test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "--silent"]
-    #   interval: 3s
-    #   retries: 5
-    #   start_period: 30s
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+    restart: always
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "schwifty", "-U", "rick"]
+      interval: 5s
     # secrets:
     #   - db-password
-    # volumes:
-    #   - db-data:/var/lib/mysql
+    volumes:
+      - db-data:/var/lib/postgresql/data
     networks:
       - spring-postgresql
   blitter-web:
@@ -41,8 +41,8 @@ services:
       # target: development
     ports:
       - 3000:3000
-    # volumes:
-    #   - ./blitter-web/src:/code/src
+    volumes:
+      - ./blitter-web/src:/app/src
     #   - /project/node_modules
     networks:
       - react-spring
@@ -51,8 +51,8 @@ services:
     # expose:
     #   - 3306
     #   - 33060
-# volumes:
-#   db-data: {}
+volumes:
+  db-data: {}
 # secrets:
 #   db-password:
 #     file: db/password.txt

@@ -35,58 +35,57 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class ApplicationSecurityConfiguration {
 
+  @Value("${jwt.public.key}")
+  RSAPublicKey publicKey;
 
-	@Value("${jwt.public.key}")
-	RSAPublicKey publicKey;
+  @Value("${jwt.private.key}")
+  RSAPrivateKey privateKey;
 
-	@Value("${jwt.private.key}")
-	RSAPrivateKey privateKey;
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.cors(Customizer.withDefaults())
+        .authorizeHttpRequests(
+            (authorize) ->
+                authorize.requestMatchers("/register").permitAll().anyRequest().authenticated())
+        .csrf((csrf) -> csrf.ignoringRequestMatchers("/auth", "/register"))
+        .httpBasic(Customizer.withDefaults())
+        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
+        .sessionManagement(
+            (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .exceptionHandling(
+            (exceptions) ->
+                exceptions
+                    .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
+                    .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
+    return http.build();
+  }
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http
-				.cors(Customizer.withDefaults())
-				.authorizeHttpRequests((authorize) -> authorize.requestMatchers("/register").permitAll()
-						.anyRequest().authenticated()
-				)
-				.csrf((csrf) -> csrf.ignoringRequestMatchers("/auth", "/register"))
-				.httpBasic(Customizer.withDefaults())
-				.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
-				.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.exceptionHandling((exceptions) -> exceptions
-						.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-						.accessDeniedHandler(new BearerTokenAccessDeniedHandler())
-				);
-		return http.build();
-	}
+  @Bean
+  CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedHeaders(Arrays.asList("Origin", "Authorization", "Content-Type"));
+    configuration.setAllowedOrigins(
+        List.of("http://localhost:3000", "https://blitter.augtheo.com"));
+    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "DELETE", "PUT"));
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }
 
-	@Bean
-	CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedHeaders(Arrays.asList("Origin", "Authorization" , "Content-Type"));
-		configuration.setAllowedOrigins(List.of("http://localhost:3000", "https://blitter.augtheo.com"));
-		configuration.setAllowedMethods(Arrays.asList("GET","POST","OPTIONS","DELETE" , "PUT"));
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
+  @Bean
+  public JwtDecoder jwtDecoder() {
+    return NimbusJwtDecoder.withPublicKey(this.publicKey).build();
+  }
 
+  @Bean
+  public JwtEncoder jwtEncoder() {
+    JWK jwk = new RSAKey.Builder(this.publicKey).privateKey(this.privateKey).build();
+    JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
+    return new NimbusJwtEncoder(jwkSource);
+  }
 
-	@Bean
-	public JwtDecoder jwtDecoder() {
-		return NimbusJwtDecoder.withPublicKey(this.publicKey).build();
-	}
-
-	@Bean
-	public JwtEncoder jwtEncoder() {
-		JWK jwk = new RSAKey.Builder(this.publicKey).privateKey(this.privateKey).build();
-		JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
-		return new NimbusJwtEncoder(jwkSource);
-	}
-
-
-	@Bean
-	public PasswordEncoder passwordEncoder(){
-		return new BCryptPasswordEncoder();
-	}
+  @Bean
+  public PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
+  }
 }

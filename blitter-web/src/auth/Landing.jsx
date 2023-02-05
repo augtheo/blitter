@@ -1,6 +1,6 @@
-import React from 'react';
 import Base from './Base';
 import { LoginBase } from './Login';
+import React from 'react';
 
 function LandingBase() {
   return (

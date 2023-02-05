@@ -8,8 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 public class BlitterAPIApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BlitterAPIApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(BlitterAPIApplication.class, args);
+  }
 }

@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
 import axios from '../utils/axios';
 import BleatCard from './BleatCard';
+import { useEffect, useState } from 'react';
 
-export default function BleatList({ bleats, setBleats}) {
+export default function BleatList({ bleats, setBleats }) {
   useEffect(() => {
     const f = async () => {
       try {
@@ -22,8 +22,7 @@ export default function BleatList({ bleats, setBleats}) {
     };
     f();
   }, []);
-  
- 
+
   return (
     bleats &&
     bleats.map((bleat) => {
@@ -32,7 +31,7 @@ export default function BleatList({ bleats, setBleats}) {
           bleat={bleat}
           key={bleat.id}
           setBleats={setBleats}
-          isBleatView= {false}
+          isBleatView={false}
         />
       );
     })

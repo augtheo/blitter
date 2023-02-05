@@ -1,8 +1,4 @@
 spring:
-  # datasource:
-  #   username: rick
-  #   url: jdbc:postgresql://localhost:5432/schwifty
-  #   password: portalgun
   jpa:
     properties:
       hibernate:

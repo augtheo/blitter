@@ -19,6 +19,7 @@ repositories {
     mavenCentral()
 }
 
+//TODO: Try to generate builder methods for OpenApi generated models
 openApiGenerate {
     generatorName = 'spring'
     inputSpec = 'src/main/resources/openapi-blitter-0.2.0-resolved.yaml'
@@ -52,6 +53,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'com.h2database:h2'
 }
 
 sourceSets.main.java.srcDirs += 'build/generate-resources/main/src/main/java'
@@ -59,6 +61,9 @@ sourceSets.main.java.srcDirs += 'build/generate-resources/main/src/main/java'
 compileJava.dependsOn(tasks.openApiGenerate)
 
 
-tasks.named('test') {
+test {
     useJUnitPlatform()
+    testLogging {
+        events "PASSED", "SKIPPED", "FAILED"
+    }
 }

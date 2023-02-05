@@ -1,5 +1,6 @@
-import { Fragment, useEffect } from 'react';
 import { Disclosure, Menu, Transition } from '@headlessui/react';
+import { Fragment, useEffect } from 'react';
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }

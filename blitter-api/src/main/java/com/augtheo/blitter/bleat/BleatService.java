@@ -10,66 +10,64 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class BleatService {
 
-    private final BleatRepository bleatRepository;
+  private final BleatRepository bleatRepository;
 
+  @Autowired
+  BleatService(BleatRepository bleatRepository) {
+    this.bleatRepository = bleatRepository;
+  }
 
-    @Autowired
-    BleatService(BleatRepository bleatRepository) {
-        this.bleatRepository = bleatRepository;
+  public List<Bleat> getBleats() {
+    return bleatRepository.findAllByOrderByLastModifiedDateDesc();
+  }
+
+  public Bleat postBleat(Bleat bleat) {
+    return bleatRepository.save(bleat);
+  }
+
+  public Bleat replyBleat(Bleat bleat, Long id) {
+    Bleat parent = bleatRepository.getReferenceById(id);
+    parent.setReplyCount(parent.getReplyCount() + 1);
+    bleatRepository.save(parent);
+    bleat.setParent(parent);
+    return bleatRepository.save(bleat);
+  }
+
+  public Bleat updateBleat(Long id, String message) {
+    Optional<Bleat> bleatById = bleatRepository.findBleatById(id);
+    if (bleatById.isEmpty()) {
+      throw new IllegalStateException("This bleat does not exist");
+    } else {
+      Bleat bleat = bleatById.get();
+      bleat.setMessage(message);
+      return bleatRepository.save(bleat);
     }
+  }
 
-    public List<Bleat> getBleats() {
-        return bleatRepository.findAllByOrderByLastModifiedDateDesc();
-    }
-
-
-    public Bleat postBleat(Bleat bleat) {
-        return bleatRepository.save(bleat);
-    }
-
-    public Bleat replyBleat(Bleat bleat , Long id) {
-        Bleat parent = bleatRepository.getReferenceById(id);
-        parent.setReplyCount(parent.getReplyCount() + 1);
+  public void deleteBleat(Long id) {
+    Optional<Bleat> optionalBleat = bleatRepository.findBleatById(id);
+    if (optionalBleat.isPresent()) {
+      Bleat bleat = optionalBleat.get();
+      Bleat parent = bleat.getParent();
+      if (parent != null) {
+        parent.setReplyCount(parent.getReplyCount() - 1);
         bleatRepository.save(parent);
-        bleat.setParent(parent);
-        return bleatRepository.save(bleat);
+      }
+      bleatRepository.delete(bleat);
     }
+  }
 
-    public Bleat updateBleat(Long id, String message) {
-        Optional<Bleat> bleatById = bleatRepository.findBleatById(id);
-        if(bleatById.isEmpty()) {
-            throw new IllegalStateException("This bleat does not exist");
-        } else {
-            Bleat bleat = bleatById.get();
-            bleat.setMessage(message);
-            return bleatRepository.save(bleat);
-        }
-    }
+  public Bleat getBleat(Long id) {
+    return bleatRepository.getReferenceById(id);
+  }
 
-    public void deleteBleat(Long id) {
-        Optional<Bleat> optionalBleat = bleatRepository.findBleatById(id);
-        if(optionalBleat.isPresent()) {
-            Bleat bleat = optionalBleat.get();
-            Bleat parent = bleat.getParent();
-            if(parent != null) {
-                parent.setReplyCount(parent.getReplyCount() - 1);
-                bleatRepository.save(parent);
-            }
-            bleatRepository.delete(bleat);
-        }
+  public List<Bleat> getRepliesTo(Long id) {
+    Bleat bleat = getBleat(id);
+    return bleatRepository.findAllByParent(bleat);
+  }
 
-    }
-    public Bleat getBleat(Long id) {
-        return bleatRepository.getReferenceById(id);
-    }
-
-    public List<Bleat> getRepliesTo(Long id) {
-        Bleat bleat = getBleat(id);
-        return bleatRepository.findAllByParent(bleat);
-    }
-
-    public Long getReplyCount(Long id) {
-        Bleat bleat = getBleat(id);
-        return bleatRepository.countByParent(bleat);
-    }
+  public Long getReplyCount(Long id) {
+    Bleat bleat = getBleat(id);
+    return bleatRepository.countByParent(bleat);
+  }
 }

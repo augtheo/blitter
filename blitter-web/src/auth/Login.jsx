@@ -1,9 +1,9 @@
+import { Field, Password } from '../utils/Forms';
 import axios from '../utils/axios';
-
+import Base from './Base';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Field, Password } from '../utils/Forms';
-import Base from './Base';
+
 export function LoginBase() {
   const navigate = useNavigate();
 
