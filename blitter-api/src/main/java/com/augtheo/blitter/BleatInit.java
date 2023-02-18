@@ -4,6 +4,7 @@ import com.augtheo.blitter.author.Author;
 import com.augtheo.blitter.author.AuthorRepository;
 import com.augtheo.blitter.bleat.Bleat;
 import com.augtheo.blitter.bleat.BleatRepository;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -32,9 +33,12 @@ public class BleatInit {
 
       authorRepository.saveAll(List.of(firstAuthor, secondAuthor));
 
-      Bleat firstBleat = new Bleat("Hello World", firstAuthor);
-      Bleat secondBleat = new Bleat("What's up", secondAuthor);
-      bleatRepository.saveAll(List.of(firstBleat, secondBleat));
+      List<Bleat> testBleatList = new LinkedList<>();
+      for(int i = 0 ; i < 20;  i++) {
+        testBleatList.add(new Bleat(String.format("Hey this is %d" , i) , (i%2 ==0 ? firstAuthor : secondAuthor)));
+      }
+
+      bleatRepository.saveAll(testBleatList);
     };
   }
 }

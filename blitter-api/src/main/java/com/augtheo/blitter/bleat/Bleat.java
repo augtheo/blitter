@@ -36,25 +36,25 @@ public class Bleat {
   String message;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  Author author;
+  private Author author;
 
   @CreatedDate LocalDateTime createdDate;
   @LastModifiedDate LocalDateTime lastModifiedDate;
-  int likeCount;
+  private int likeCount;
 
   /*
   TODO: May need a separate Replies table
    */
   @ManyToOne(fetch = FetchType.LAZY)
-  Bleat parent;
+  private Bleat parent;
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parent")
-  List<Bleat> children;
+  private List<Bleat> children;
 
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "bleat")
-  List<Favourite> favourites;
+  private List<Favourite> favourites;
 
-  int replyCount;
+  private int replyCount;
 
   public Bleat(String message, Author author) {
     this.message = message;

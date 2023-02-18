@@ -2,6 +2,7 @@ import PaginationFooter from '../PaginationFooter';
 import axios from '../utils/axios';
 import BleatList from './BleatList';
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 function PublishBleat({ setSomeBleat }) {
   const handleSubmit = async (event) => {
@@ -83,6 +84,9 @@ function PublishBleat({ setSomeBleat }) {
 export default function Feed() {
   const [someBleat, setSomeBleat] = useState({});
   const [bleats, setBleats] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [currentPage, setCurrentPage] = useState(searchParams.get('page') | 1);
+  const [totalResults, setTotalResults] = useState(0);
   useEffect(() => {
     if (Object.keys(someBleat).length !== 0)
       setBleats((prevBleats) => [someBleat, ...prevBleats]);
@@ -91,9 +95,18 @@ export default function Feed() {
     <div className='flex min-h-screen grow flex-col'>
       <div className='grow bg-gray-50 dark:bg-black'>
         <PublishBleat setSomeBleat={setSomeBleat} />
-        <BleatList bleats={bleats} setBleats={setBleats} />
+        <BleatList
+          bleats={bleats}
+          setBleats={setBleats}
+          currentPage={searchParams.get('page') || 1}
+          setTotalResults={setTotalResults}
+        />
       </div>
-      <PaginationFooter />
+      <PaginationFooter
+        currentPage={searchParams.get('page') || 1}
+        totalResults={totalResults}
+        setCurrentPage={setCurrentPage}
+      />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import User from './profile/User';
 import React from 'react';
 import { useState, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import UnderMaintenance from './UnderMaintenance';
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(
@@ -34,6 +35,7 @@ export default function App() {
         <Route path='/users/:id' element={<User />} />
         <Route path='/home' element={<Feed />} />
       </Route>
+      <Route path='/error' element={<UnderMaintenance/>}/>
       <Route path='*' element={<FourZeroFour />} />
     </Routes>
   );

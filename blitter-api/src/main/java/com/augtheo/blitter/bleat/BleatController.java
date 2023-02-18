@@ -6,6 +6,7 @@ import com.augtheo.blitter.author.AuthorService;
 import com.augtheo.blitter.favourite.FavouriteService;
 import com.augtheo.blitter.model.BleatReq;
 import com.augtheo.blitter.model.BleatRes;
+import com.augtheo.blitter.model.GetBleats200Response;
 import com.augtheo.blitter.model.ToggleLikeBleat200Response;
 import com.augtheo.blitter.model.UpdateBleatRequest;
 import java.util.List;
@@ -56,16 +57,25 @@ public class BleatController implements BleatsApi {
   }
 
   @Override
-  public ResponseEntity<List<BleatRes>> getBleats() {
-    return ResponseEntity.ok(
-        bleatService.getBleats().stream()
+  public ResponseEntity<GetBleats200Response> getBleats(Integer page, Integer perPage) {
+
+    GetBleats200Response getBleats200Response =  new GetBleats200Response();
+    getBleats200Response.setBleats(
+        bleatService.getBleats(page , perPage).stream()
             .map(this::domainModelConverter)
             .map(
                 bleatRes ->
                     bleatRes.authorLiked(
                         favouriteService.hasLiked(bleatRes.getId(), getCurrentAuthor().getId())))
-            .toList());
+            .toList()
+    );
+    getBleats200Response.setPage(page);
+    getBleats200Response.setPerPage(perPage);
+    getBleats200Response.setTotal(bleatService.getTotal());
+    log.info("Response : {} ", getBleats200Response);
+    return ResponseEntity.ok(getBleats200Response);
   }
+
 
   @Override
   public ResponseEntity<BleatRes> postBleat(BleatReq bleatReq) {

@@ -6,7 +6,7 @@ COPY gradle gradle
 # COPY .gradle .gradle
 COPY build.gradle .
 COPY settings.gradle .
-# RUN ./gradlew --version
+RUN ./gradlew --version
 # TODO: Avoid re-downloading the gradle binary each time.
 # TODO: Avoid re-downloading the dependencies
 COPY src src

@@ -1,27 +1,38 @@
-import axios from '../utils/axios'
-import BleatCard from './BleatCard'
-import { useEffect} from 'react'
+import axios from '../utils/axios';
+import BleatCard from './BleatCard';
+import { useEffect } from 'react';
 
-export default function BleatList({ bleats, setBleats }) {
+export default function BleatList({
+  bleats,
+  setBleats,
+  currentPage,
+  setTotalResults,
+}) {
   useEffect(() => {
     const f = async () => {
       try {
         const response = await axios({
           method: 'get',
           url: '/bleats',
+          params: {
+            page: currentPage - 1,
+            per_page: 10,
+          },
           headers: {
             'Content-Type': 'application/json',
             Authorization:
               'Bearer ' + localStorage.getItem('bird-person-web.auth.token'),
           },
-        })
-        setBleats(response.data)
+        });
+        // console.log(currentPage);
+        setTotalResults(response.data.total);
+        setBleats(response.data.bleats);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-    }
-    f()
-  }, [])
+    };
+    f();
+  }, [currentPage]);
 
   return (
     bleats &&
@@ -33,7 +44,7 @@ export default function BleatList({ bleats, setBleats }) {
           setBleats={setBleats}
           isBleatView={false}
         />
-      )
+      );
     })
-  )
+  );
 }

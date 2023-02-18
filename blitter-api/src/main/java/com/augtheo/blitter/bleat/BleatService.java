@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +22,11 @@ public class BleatService {
 
   public List<Bleat> getBleats() {
     return bleatRepository.findAllByOrderByLastModifiedDateDesc();
+  }
+
+  public List<Bleat> getBleats(Integer page, Integer perPage) {
+    Pageable pageable = PageRequest.of(page , perPage);
+    return bleatRepository.findAllByOrderByLastModifiedDateDesc(pageable).getContent();
   }
 
   public Bleat postBleat(Bleat bleat) {
@@ -69,5 +77,9 @@ public class BleatService {
   public Long getReplyCount(Long id) {
     Bleat bleat = getBleat(id);
     return bleatRepository.countByParent(bleat);
+  }
+
+  public Long getTotal() {
+   return bleatRepository.count();
   }
 }
