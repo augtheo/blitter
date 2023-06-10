@@ -5,4 +5,4 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./blitter-web/src:/app/src
+      - ./blitter-vite/src:/app/src
