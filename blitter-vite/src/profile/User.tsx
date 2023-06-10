@@ -4,7 +4,55 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-function UserCard({ author }) {
+function Follow({ author}) {
+  const [isFollowing, setIsFollowing] = useState(author.following);
+
+  const toggle = (action) => {
+    const handleFollowUnfollow = async (event) => {
+      try {
+        event.preventDefault();
+        const response = await axios({
+          method: "post",
+          url: "/users/" + author.username + "/" + action,
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:
+              "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
+          },
+        });
+        setIsFollowing((isFollowing) => !isFollowing);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    return handleFollowUnfollow;
+  };
+
+  const currentUser = localStorage.getItem("currentUser");
+  if (currentUser === author.username) return <></>;
+  else if (isFollowing)
+    return (
+      <button
+        className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-red-700 rounded-lg focus:ring-4 focus:ring-red-200 dark:focus:ring-red-900 hover:bg-red-800"
+        type="submit"
+        onClick={toggle("unfollow")}
+      >
+        Unfollow
+      </button>
+    );
+  else
+    return (
+      <button
+        className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800"
+        type="submit"
+        onClick={toggle("follow")}
+      >
+        Follow
+      </button>
+    );
+}
+
+function UserCard({ author, setAuthor }) {
   return (
     <div className="flex grow flex-col bg-gray-50 p-4 dark:bg-black">
       <div className=" items-center justify-center ">
@@ -21,12 +69,7 @@ function UserCard({ author }) {
                 </span>
               </div>
             </div>
-            <button
-              className="inline-flex items-center py-2.5 px-4 text-xs font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800"
-              type="submit"
-            >
-              Follow
-            </button>
+            <Follow author={author}/>
           </div>
         </div>
       </div>
@@ -74,7 +117,7 @@ export default function User() {
   return (
     bleatsByAuthor && (
       <div className="min-h-screen  grow bg-gray-50 dark:bg-black">
-        <UserCard author={author} key={author.id} />
+        <UserCard author={author} setAuthor={setAuthor} key={author.id} />
         <hr className="mx-auto my-4 h-1 w-48 rounded border-0 bg-gray-100 dark:bg-gray-700 md:my-10" />
         <div>
           {bleatsByAuthor.map((bleat) => (

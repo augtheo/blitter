@@ -26,6 +26,7 @@ export function LoginBase() {
         },
       });
       localStorage.setItem("bird-person-web.auth.token", response.data.jwt);
+      localStorage.setItem("currentUser", formJson.username);
       if (response.status === 200) {
         navigate("/home");
       }
