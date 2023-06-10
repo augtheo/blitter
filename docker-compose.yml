@@ -30,7 +30,7 @@ services:
       - spring-postgresql
   blitter-web:
     build:
-      context: blitter-web
+      context: blitter-vite
     volumes:
       - /project/node_modules
     networks:
