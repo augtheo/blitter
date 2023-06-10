@@ -1,2 +1,0 @@
-export const BLITTER_APP_BLEAT_PAGE_SIZE = 10;
-export const BLITTER_APP_BLEAT_MAX_PAGES = 5;
