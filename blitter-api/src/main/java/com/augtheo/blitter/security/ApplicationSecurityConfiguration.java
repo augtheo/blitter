@@ -65,7 +65,7 @@ public class ApplicationSecurityConfiguration {
     CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedHeaders(Arrays.asList("Origin", "Authorization", "Content-Type"));
     configuration.setAllowedOrigins(
-        List.of("http://localhost:3000", "https://blitter.augtheo.com"));
+        List.of("http://localhost:5173", "http://localhost:3000", "https://blitter.augtheo.com" ));
     configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "DELETE", "PUT"));
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);

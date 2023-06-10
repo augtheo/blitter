@@ -1,16 +1,13 @@
 package com.augtheo.blitter.author;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import java.util.Collection;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -18,55 +15,84 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 public class Author implements UserDetails {
 
-  @Id
-  @SequenceGenerator(name = "author_sequence")
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "author_sequence")
-  private Long id;
+    @Id
+    @SequenceGenerator(name = "author_sequence")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "author_sequence")
+    private Long id;
 
-  private String password;
-  private String name;
-  private String nickName;
+    @ToString.Exclude
+    private String password;
 
-  private boolean accountExpired = false;
+    private String name;
 
-  private boolean accountLocked = false;
+    private String username;
 
-  private boolean credentialsExpired = false;
-  private boolean enabled = true;
+    private boolean accountExpired = false;
 
-  public Author(String nickName, String name, String password) {
-    this.nickName = nickName;
-    this.name = name;
-    this.password = password;
-  }
+    private boolean accountLocked = false;
 
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return null;
-  }
+    private boolean credentialsExpired = false;
 
-  @Override
-  public String getUsername() {
-    return getNickName();
-  }
+    private boolean enabled = true;
 
-  @Override
-  public boolean isAccountNonExpired() {
-    return !accountExpired;
-  }
+    private String profilePictureUri;
 
-  @Override
-  public boolean isAccountNonLocked() {
-    return !accountLocked;
-  }
 
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return !credentialsExpired;
-  }
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(name = "follower_following", joinColumns = @JoinColumn(name = "follower"), inverseJoinColumns = @JoinColumn(name = "following"))
+    private @Singular Set<Author> followers = new HashSet<>();
 
-  @Override
-  public boolean isEnabled() {
-    return enabled;
-  }
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @ManyToMany(mappedBy = "followers")
+    private @Singular Set<Author> following = new HashSet<>();
+
+    public Author(String username, String name, String password) {
+        this.username = username;
+        this.name = name;
+        this.password = password;
+        this.followers.add(this);
+        this.following.add(this);
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return !accountExpired;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !accountLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return !credentialsExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void addFollower(Author follower) {
+        this.followers.add(follower);
+    }
+
+
+    public void addFollowing(Author following) {
+        this.following.add(following);
+    }
 }

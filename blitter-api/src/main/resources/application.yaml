@@ -1,4 +1,7 @@
 spring:
+  datasource:
+    url: jdbc:postgres://localhost:5432/blitterdb
+    user: blitz
   jpa:
     properties:
       hibernate:

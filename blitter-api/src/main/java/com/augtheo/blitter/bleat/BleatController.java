@@ -3,15 +3,15 @@ package com.augtheo.blitter.bleat;
 import com.augtheo.blitter.api.BleatsApi;
 import com.augtheo.blitter.author.Author;
 import com.augtheo.blitter.author.AuthorService;
-import com.augtheo.blitter.favourite.FavouriteService;
+import com.augtheo.blitter.favourite.LikeService;
 import com.augtheo.blitter.model.BleatReq;
 import com.augtheo.blitter.model.BleatRes;
 import com.augtheo.blitter.model.GetBleats200Response;
 import com.augtheo.blitter.model.ToggleLikeBleat200Response;
-import com.augtheo.blitter.model.UpdateBleatRequest;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,20 +19,23 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 
+/*
+ * TODO: Clean up multiple getCurrentAuthor methods
+ */
 @RestController
 @Slf4j
 public class BleatController implements BleatsApi {
 
   private final BleatService bleatService;
   private final AuthorService authorService;
-  private final FavouriteService favouriteService;
+  private final LikeService likeService;
 
   @Autowired
   public BleatController(
-      BleatService bleatService, AuthorService authorService, FavouriteService favouriteService) {
+      BleatService bleatService, AuthorService authorService, LikeService likeService) {
     this.authorService = authorService;
     this.bleatService = bleatService;
-    this.favouriteService = favouriteService;
+    this.likeService = likeService;
   }
 
   @Override
@@ -47,35 +50,45 @@ public class BleatController implements BleatsApi {
 
   @Override
   public ResponseEntity<BleatRes> getBleat(Long id) {
-    return ResponseEntity.ok(domainModelConverter(bleatService.getBleat(id)));
+    return ResponseEntity.ok(
+        domainModelConverter(bleatService.getBleat(id))
+            .authorLiked(likeService.hasLiked(id, getCurrentAuthor().getId())));
   }
 
   @Override
   public ResponseEntity<List<BleatRes>> getBleatReplies(Long id) {
     return ResponseEntity.ok(
-        bleatService.getRepliesTo(id).stream().map(this::domainModelConverter).toList());
-  }
-
-  @Override
-  public ResponseEntity<GetBleats200Response> getBleats(Integer page, Integer perPage) {
-
-    GetBleats200Response getBleats200Response =  new GetBleats200Response();
-    getBleats200Response.setBleats(
-        bleatService.getBleats(page , perPage).stream()
+        bleatService.getRepliesTo(id).stream()
             .map(this::domainModelConverter)
             .map(
                 bleatRes ->
                     bleatRes.authorLiked(
-                        favouriteService.hasLiked(bleatRes.getId(), getCurrentAuthor().getId())))
-            .toList()
-    );
+                        likeService.hasLiked(bleatRes.getId(), getCurrentAuthor().getId())))
+            .toList());
+  }
+
+  /*
+   * TODO: Return correct number of pages
+   * TODO: Include self bleats in the list.
+   */
+  @Override
+  public ResponseEntity<GetBleats200Response> getBleats(Integer page, Integer perPage) {
+    GetBleats200Response getBleats200Response = new GetBleats200Response();
+    Page<Bleat> bleatPage = bleatService.getBleats(page, perPage, getCurrentAuthor());
+    getBleats200Response.setBleats(
+            bleatPage.getContent().stream()
+            .map(this::domainModelConverter)
+            .map(
+                bleatRes ->
+                    bleatRes.authorLiked(
+                        likeService.hasLiked(bleatRes.getId(), getCurrentAuthor().getId())))
+            .toList());
     getBleats200Response.setPage(page);
     getBleats200Response.setPerPage(perPage);
-    getBleats200Response.setTotal(bleatService.getTotal());
+    getBleats200Response.setTotal(bleatPage.getTotalElements());
     log.info("Response : {} ", getBleats200Response);
     return ResponseEntity.ok(getBleats200Response);
   }
-
 
   @Override
   public ResponseEntity<BleatRes> postBleat(BleatReq bleatReq) {
@@ -91,7 +104,7 @@ public class BleatController implements BleatsApi {
 
   @Override
   public ResponseEntity<ToggleLikeBleat200Response> toggleLikeBleat(Long id) {
-    Pair<Integer, Boolean> likes = favouriteService.toggleLike(id, getCurrentAuthor().getId());
+    Pair<Integer, Boolean> likes = likeService.toggleLike(id, getCurrentAuthor().getId());
     return ResponseEntity.ok(
         new ToggleLikeBleat200Response()
             .likeCount(likes.getFirst())
@@ -99,9 +112,9 @@ public class BleatController implements BleatsApi {
   }
 
   @Override
-  public ResponseEntity<BleatRes> updateBleat(String id, UpdateBleatRequest updateBleatRequest) {
+  public ResponseEntity<BleatRes> updateBleat(Long id, BleatReq bleatReq) {
     try {
-      Bleat bleat = bleatService.updateBleat(Long.valueOf(id), updateBleatRequest.getMessage());
+      Bleat bleat = bleatService.updateBleat(id, bleatReq.getMessage());
       return ResponseEntity.ok(domainModelConverter(bleat));
     } catch (Exception ex) {
       return ResponseEntity.notFound().build();
@@ -126,6 +139,7 @@ public class BleatController implements BleatsApi {
     bleatRes.setMessage(bleat.getMessage());
     bleatRes.setAuthorName(bleat.getAuthor().getName());
     bleatRes.setAuthorUsername(bleat.getAuthor().getUsername());
+    bleatRes.setAuthorProfileUrl(bleat.getAuthor().getProfilePictureUri());
     bleatRes.setMessage(bleat.getMessage());
     bleatRes.setCreatedDate(bleat.getCreatedDate());
     bleatRes.setLastModifiedDate(bleat.getLastModifiedDate());

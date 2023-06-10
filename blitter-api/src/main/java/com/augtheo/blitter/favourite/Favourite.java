@@ -16,11 +16,11 @@ public class Favourite {
   @Id
   @SequenceGenerator(name = "like_sequence")
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "like_sequence")
-  Long id;
+  private Long id;
 
-  @OneToOne Author author;
+  @OneToOne private Author author;
 
-  @OneToOne Bleat bleat;
+  @ManyToOne private Bleat bleat;
 
   public Favourite(Bleat bleat, Author author) {
     this.bleat = bleat;

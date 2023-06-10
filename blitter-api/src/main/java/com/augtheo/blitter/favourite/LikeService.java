@@ -11,9 +11,9 @@ import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FavouriteService {
+public class LikeService {
 
-  private final FavouriteRepository favouriteRepository;
+  private final LikeRepository likeRepository;
   private final BleatRepository bleatRepository;
   private final AuthorRepository authorRepository;
 
@@ -22,17 +22,17 @@ public class FavouriteService {
    */
 
   @Autowired
-  FavouriteService(
-      FavouriteRepository favouriteRepository,
+  LikeService(
+      LikeRepository likeRepository,
       BleatRepository bleatRepository,
       AuthorRepository authorRepository) {
-    this.favouriteRepository = favouriteRepository;
+    this.likeRepository = likeRepository;
     this.bleatRepository = bleatRepository;
     this.authorRepository = authorRepository;
   }
 
   public Boolean hasLiked(Long bleatId, Long authorId) {
-    return favouriteRepository
+    return likeRepository
         .findByBleatAndAuthor(
             bleatRepository.getReferenceById(bleatId), authorRepository.getReferenceById(authorId))
         .isPresent();
@@ -41,23 +41,23 @@ public class FavouriteService {
   public Pair<Integer, Boolean> toggleLike(Long bleatId, Long authorId) {
 
     Optional<Favourite> optionalFavourite =
-        favouriteRepository.findByBleatAndAuthor(
+        likeRepository.findByBleatAndAuthor(
             bleatRepository.getReferenceById(bleatId), authorRepository.getReferenceById(authorId));
     Bleat bleat = bleatRepository.getReferenceById(bleatId);
 
     if (optionalFavourite.isPresent()) {
       bleat.setLikeCount(bleat.getLikeCount() - 1);
       bleatRepository.save(bleat);
-      favouriteRepository.deleteById(optionalFavourite.get().getId());
+      likeRepository.deleteById(optionalFavourite.get().getId());
     } else {
       bleat.setLikeCount(bleat.getLikeCount() + 1);
       bleatRepository.save(bleat);
-      favouriteRepository.save(new Favourite(bleat, authorRepository.getReferenceById(authorId)));
+      likeRepository.save(new Favourite(bleat, authorRepository.getReferenceById(authorId)));
     }
     return Pair.of(bleat.getLikeCount(), optionalFavourite.isEmpty());
   }
 
   public List<Bleat> getLikedBleats(Author author) {
-    return favouriteRepository.findAllByAuthor(author).stream().map(Favourite::getBleat).toList();
+    return likeRepository.findAllByAuthor(author).stream().map(Favourite::getBleat).toList();
   }
 }

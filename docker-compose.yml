@@ -37,6 +37,7 @@ services:
       - react-spring
     depends_on:
       - blitter-api
+    restart: always
 volumes:
   db-data: {}
 networks:

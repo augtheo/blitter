@@ -31,9 +31,9 @@ public class Bleat {
   @Id
   @SequenceGenerator(name = "bleat_sequence")
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "bleat_sequence")
-  Long id;
+  private Long id;
 
-  String message;
+  private String message;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private Author author;

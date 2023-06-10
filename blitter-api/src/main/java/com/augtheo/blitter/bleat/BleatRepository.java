@@ -1,6 +1,7 @@
 package com.augtheo.blitter.bleat;
 
 import com.augtheo.blitter.author.Author;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Repository;
 public interface BleatRepository extends JpaRepository<Bleat, Long> {
 
   Optional<Bleat> findBleatById(Long id);
+
+  Page<Bleat> findBleatByAuthorInOrderByLastModifiedDateDesc(
+      Pageable pageable, Collection<Author> authors);
 
   Page<Bleat> findAllByOrderByLastModifiedDateDesc(Pageable pageable);
 

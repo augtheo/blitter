@@ -1,5 +1,6 @@
 package com.augtheo.blitter.bleat;
 
+import com.augtheo.blitter.author.Author;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -20,13 +21,10 @@ public class BleatService {
     this.bleatRepository = bleatRepository;
   }
 
-  public List<Bleat> getBleats() {
-    return bleatRepository.findAllByOrderByLastModifiedDateDesc();
-  }
-
-  public List<Bleat> getBleats(Integer page, Integer perPage) {
-    Pageable pageable = PageRequest.of(page , perPage);
-    return bleatRepository.findAllByOrderByLastModifiedDateDesc(pageable).getContent();
+  public Page<Bleat> getBleats(Integer page, Integer perPage, Author currentAuthor) {
+    Pageable pageable = PageRequest.of(page, perPage);
+    return bleatRepository.findBleatByAuthorInOrderByLastModifiedDateDesc(
+        pageable, currentAuthor.getFollowing());
   }
 
   public Bleat postBleat(Bleat bleat) {
@@ -80,6 +78,6 @@ public class BleatService {
   }
 
   public Long getTotal() {
-   return bleatRepository.count();
+    return bleatRepository.count();
   }
 }

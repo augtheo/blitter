@@ -1,53 +1,42 @@
 openapi: 3.0.0
 info:
   title: blitter
-  description: A RESTful API for creating and managing bleats
-  version: 0.2.0
+  description: A RESTful API for blitter, a twitter clone
+  version: 0.3.0
 servers:
-  - url: https://localhost:8080
-    description: SwaggerHub API Auto Mocking
+  - url : http://localhost:8080/v2
+tags:
+  - name: Bleats
+    description: Operations related to bleats
+security:
+  - blitterBearerAuth : []
 paths:
-  /register:
+  /auth:
     post:
-      tags:
-      - Registration
-      summary: Registers a new user
-      requestBody:
-        description: A JSON object containing the nickName, password
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RegisterReq'
-        required: true
-      responses:
-        "200":
-          description: Successfully registered
-      security: []
-  /login:
-    post:
-      deprecated: true
       tags:
       - Authentication
-      summary: Logs in and returns the authentication  cookie
-      requestBody:
-        description: A JSON object containing the login and password.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginReq'
-        required: true
+      summary: Returns the JWT once authenticated
       responses:
         "200":
-          description: |
-            Successfully authenticated. The session ID is returned in a cookie named `JSESSIONID`. You need to include this cookie in subsequent requests.
-          headers:
-            Set-Cookie:
-              style: simple
-              explode: false
+          description: Successfully authenticated. The JWT is returned
+          content:
+            application/json:
               schema:
-                type: string
-                example: JSESSIONID=abcde12345; Path=/; HttpOnly
-      security: []
+                type: object
+                properties:
+                  jwt:
+                    type: string
+      security:
+        - blitterBasicAuth : []
+  /logout:
+    post:
+      tags:
+        - Authentication
+      summary: Logs user out of the server
+      description: JWT is invalidated
+      responses:
+        default:
+          description: Successful operation
   /bleats:
     get:
       tags:
@@ -83,14 +72,14 @@ paths:
                   per_page:
                     type: integer
                   total:
-                    type: long
+                    type: integer
+                    format: int64
         '500':
           description: Internal server error
-      x-swagger-router-controller: Bleats
     post:
       tags:
       - Bleats
-      summary: Create a new bleat
+      summary: Creates a new bleat
       description: Creates a new bleat
       operationId: postBleat
       requestBody:
@@ -98,9 +87,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/BleatReq'
-            example:
-              message: This is a new bleat
-              author: Woody
       responses:
         "201":
           description: The bleat was created
@@ -116,6 +102,7 @@ paths:
     get:
       tags:
         - Bleats
+      summary: Get a bleat by id
       description: returns a bleat
       operationId: getBleat
       parameters:
@@ -125,8 +112,8 @@ paths:
           style: simple
           explode: false
           schema:
-            type: long
-          example: 10
+            type: integer
+            format: int64
       responses:
         "200":
           description: Bleat
@@ -134,8 +121,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BleatRes'
-      x-swagger-router-controller: Bleats
-    put:
+    patch:
+      summary: Update a bleat by id
       tags:
       - Bleats
       operationId: updateBleat
@@ -146,18 +133,13 @@ paths:
         style: simple
         explode: false
         schema:
-          type: string
-        example: 10
+          type: integer
+          format: int64
       requestBody:
         content:
           application/json:
             schema:
-              properties:
-                message:
-                  type: string
-            example:
-              message: This is a new bleat
-              author: Woody
+              $ref: '#/components/schemas/BleatReq'
       responses:
         "200":
           description: Return bleat
@@ -165,10 +147,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BleatRes'
-      x-swagger-router-controller: Bleats
     delete:
       tags:
         - Bleats
+      summary: Delete a bleat by id
       operationId: deleteBleat
       parameters:
         - name: id
@@ -178,15 +160,14 @@ paths:
           explode: false
           schema:
             type: string
-          example: 10
       responses:
         "200":
           description: Successfully Deleted
-      x-swagger-router-controller: Bleats
   /bleats/{id}/toggleLike:
     post:
       tags:
         - Favourite
+      summary: Toggle the like for a bleat by id
       operationId: toggleLikeBleat
       parameters:
         - name: id
@@ -195,8 +176,8 @@ paths:
           style: simple
           explode: false
           schema:
-            type: long
-          example: 10
+            type: integer
+            format: int64
       responses:
         "200":
           description: Successfully toggled like
@@ -205,15 +186,14 @@ paths:
               schema:
                 properties:
                   likeCount:
-                    type: int
+                    type: integer
                   authorLiked:
                     type: boolean
-
-      x-swagger-router-controller: Bleats
   /bleats/{id}/reply:
     get:
       tags:
         - Bleats
+      summary: Get a list of replies to a bleat by id
       description: returns all the replies to this bleat
       operationId: getBleatReplies
       parameters:
@@ -223,8 +203,8 @@ paths:
           style: simple
           explode: false
           schema:
-            type: long
-          example: 10
+            type: integer
+            format: int64
       responses:
         "200":
           description: Bleat
@@ -232,10 +212,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BleatsRes'
-      x-swagger-router-controller: Bleats
     post:
       tags:
         - Bleats
+      summary: Post a reply to a bleat by id
       description: publish a reply to a bleat
       operationId: replyBleat
       parameters:
@@ -245,15 +225,13 @@ paths:
           style: simple
           explode: false
           schema:
-            type: long
-          example: 10
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/BleatReq'
-            example:
-              message: This is a reply to a bleat
       responses:
         "200":
           description: Return bleat
@@ -261,10 +239,40 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BleatRes'
+  /register:
+    post:
+      tags:
+        - Users
+      summary: Creates a new user
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterReq'
+        required: true
+      responses:
+        "201":
+          description: Created User
+      security: []
+  /users:
+    get:
+      tags:
+      - Users
+      description: returns the current user
+      operationId: getSelf
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthorRes'
+
   /users/{username}:
     get:
       tags:
-      - Authors
+      - Users
       description: returns a specific author
       operationId: getAuthor
       parameters:
@@ -275,7 +283,6 @@ paths:
         explode: false
         schema:
           type: string
-          example: "nate"
       responses:
         "200":
           description: Success
@@ -286,7 +293,8 @@ paths:
   /users/{username}/bleats:
     get:
       tags:
-        - Authors
+        - Users
+      summary: Get a list of bleats posted by user
       description: returns the list of  bleats by the author
       parameters:
         - name: username
@@ -296,7 +304,6 @@ paths:
           explode: false
           schema:
             type: string
-            example: "nate"
       responses:
         "200":
           description: All the bleats posted by author
@@ -307,8 +314,8 @@ paths:
   /users/{username}/liked:
     get:
       tags:
-      - Authors
-      description: returns the list of liked bleats by the author
+      - Users
+      summary: Get a list of bleats liked by user
       parameters:
       - name: username
         in: path
@@ -317,15 +324,79 @@ paths:
         explode: false
         schema:
           type: string
-          example: "nate"
       responses:
         "200":
-          description: All the bleats liked
+          description: All the bleats liked by {username}
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BleatsRes'
+  /users/{username}/follow:
+    post:
+      tags:
+        - Users
+      summary: Follow a user
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: followUser
+      responses:
+        '200':
+          description: Successfully followed
+        '404':
+          description: User not found
+  /users/{username}/unfollow:
+    post:
+      tags:
+        - Users
+      summary: Unfollow a user
+      operationId: unfollowUser
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully unfollowed
+        '404':
+          description: User not found
+  /users/{username}/following:
+    get:
+      tags:
+        - Users
+      summary: Get list of users the user is following
+      operationId: getFollowingUsers
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthorRes'
+        '404':
+          description: User not found
 components:
+  securitySchemes:
+    blitterBasicAuth:
+      type: http
+      scheme: basic
+    blitterBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     RegisterReq:
       type: object
@@ -333,13 +404,6 @@ components:
         username:
           type: string
         name:
-          type: string
-        password:
-          type: string
-    LoginReq:
-      type: object
-      properties:
-        username:
           type: string
         password:
           type: string
@@ -352,12 +416,15 @@ components:
       type: object
       properties:
         id:
-          type: long
+          type: integer
+          format: int64
         message:
           type: string
         author_username:
           type: string
         author_name:
+          type: string
+        authorProfileUrl:
           type: string
         createdDate:
           type: string
@@ -379,8 +446,21 @@ components:
       type: object
       properties:
         id:
-          type: long
+          type: integer
+          format: int64
         username:
           type: string
         name:
+          type: string
+        following:
+          type: boolean
+          description: TRUE if the currently logged in user follows this author.
+        follows:
+          type: boolean
+          description: TRUE  if the currently logged in user is followed by this author.
+        followers:
+          type: integer
+        followees:
+          type: integer
+        profileUrl:
           type: string
