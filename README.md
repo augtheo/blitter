@@ -1,7 +1,7 @@
 <div align="center">
     <p>
     <a href="https://blitter.augtheo.com/">
-        <img alt="Blitter" src="./blitter-web/public/logo.svg">
+        <img alt="Blitter" src="./blitter-vite/public/logo.svg">
     </a>
     </p>
     <br>
@@ -20,9 +20,8 @@
 
 Run the following command to create DB credentials and generate an RSA private and public keys pair and place them at `blitter-api/src/main/resources/`
 
-
 ```bash
-./setup.sh 
+./setup.sh
 ```
 
 # build
@@ -32,8 +31,7 @@ docker compose -f docker-compose.yml -f docker-compose-dev.yml build
 ```
 
 # run
+
 ```bash
 docker compose -f docker-compose.yml -f docker-compose-dev.yml up
 ```
-
-
