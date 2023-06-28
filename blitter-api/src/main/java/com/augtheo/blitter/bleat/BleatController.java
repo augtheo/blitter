@@ -76,7 +76,7 @@ public class BleatController implements BleatsApi {
     GetBleats200Response getBleats200Response = new GetBleats200Response();
     Page<Bleat> bleatPage = bleatService.getBleats(page, perPage, getCurrentAuthor());
     getBleats200Response.setBleats(
-            bleatPage.getContent().stream()
+        bleatPage.getContent().stream()
             .map(this::domainModelConverter)
             .map(
                 bleatRes ->
@@ -85,7 +85,8 @@ public class BleatController implements BleatsApi {
             .toList());
     getBleats200Response.setPage(page);
     getBleats200Response.setPerPage(perPage);
-    getBleats200Response.setTotal(bleatPage.getTotalElements());
+    getBleats200Response.setTotalBleats(bleatPage.getTotalElements());
+    getBleats200Response.setPerPage(bleatPage.getTotalPages());
     log.info("Response : {} ", getBleats200Response);
     return ResponseEntity.ok(getBleats200Response);
   }
@@ -135,31 +136,25 @@ public class BleatController implements BleatsApi {
   }
 
   private BleatRes domainModelConverter(Bleat bleat) {
-    BleatRes bleatRes = new BleatRes();
-    bleatRes.setMessage(bleat.getMessage());
-    bleatRes.setAuthorName(bleat.getAuthor().getName());
-    bleatRes.setAuthorUsername(bleat.getAuthor().getUsername());
-    bleatRes.setAuthorProfileUrl(bleat.getAuthor().getProfilePictureUri());
-    bleatRes.setMessage(bleat.getMessage());
-    bleatRes.setCreatedDate(bleat.getCreatedDate());
-    bleatRes.setLastModifiedDate(bleat.getLastModifiedDate());
-    bleatRes.setId(bleat.getId());
-    bleatRes.setLikeCount(bleat.getLikeCount());
-    bleatRes.setReplyCount(bleat.getReplyCount());
-    return bleatRes;
+    return BleatRes.builder()
+        .message(bleat.getMessage())
+        .authorName(bleat.getAuthor().getName())
+        .authorUsername(bleat.getAuthor().getUsername())
+        .authorProfileUrl(bleat.getAuthor().getProfilePictureUri())
+        .message(bleat.getMessage())
+        .createdDate(bleat.getCreatedDate())
+        .lastModifiedDate(bleat.getLastModifiedDate())
+        .id(bleat.getId())
+        .likeCount(bleat.getLikeCount())
+        .replyCount(bleat.getReplyCount())
+    .build();
   }
 
   private Bleat domainModelConverter(BleatReq bleatReq) {
-    Bleat bleat = new Bleat();
-    bleat.setMessage(bleatReq.getMessage());
-    bleat.setAuthor(getCurrentAuthor());
-    return bleat;
+    return Bleat.builder().message(bleatReq.getMessage()).author(getCurrentAuthor()).build();
   }
 
   private Bleat domainModelConverter(BleatRes bleatRes) {
-    Bleat bleat = new Bleat();
-    bleat.setAuthor(getCurrentAuthor());
-    bleat.setMessage(bleatRes.getMessage());
-    return bleat;
+    return Bleat.builder().message(bleatRes.getMessage()).author(getCurrentAuthor()).build();
   }
 }

@@ -19,8 +19,6 @@ public interface BleatRepository extends JpaRepository<Bleat, Long> {
 
   Page<Bleat> findAllByOrderByLastModifiedDateDesc(Pageable pageable);
 
-  List<Bleat> findAllByOrderByLastModifiedDateDesc();
-
   List<Bleat> findAllByAuthor(Author author);
 
   List<Bleat> findAllByParent(Bleat parent);

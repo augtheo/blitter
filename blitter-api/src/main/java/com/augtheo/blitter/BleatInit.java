@@ -5,6 +5,9 @@ import com.augtheo.blitter.author.AuthorRepository;
 import com.augtheo.blitter.author.AuthorService;
 import com.augtheo.blitter.bleat.Bleat;
 import com.augtheo.blitter.bleat.BleatRepository;
+
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +18,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+//TODO: Avoid including this file in source control
 @Configuration
+@Slf4j
 public class BleatInit {
 
   PasswordEncoder passwordEncoder;
@@ -41,7 +46,7 @@ public class BleatInit {
       secondAuthor.setProfilePictureUri(
           "https://blitter-user-profile-pictures.s3.amazonaws.com/girl.jpg");
 
-      // secondAuthor follows firstAuthor;              
+      // secondAuthor follows firstAuthor
       firstAuthor.addFollower(secondAuthor);
       secondAuthor.addFollowing(firstAuthor);
 
@@ -56,12 +61,12 @@ public class BleatInit {
 
       bleatRepository.saveAll(testBleatList);
 
-      System.out.println("first Author " + firstAuthor);
-      System.out.println("second Author " + secondAuthor);
+      log.info("first Author = {} ", firstAuthor);
+      log.info("second Author = {} ", secondAuthor);
 
       Page<Bleat> allBleats =
           bleatRepository.findAllByOrderByLastModifiedDateDesc(PageRequest.of(0, 30));
-      System.out.println("all Bleats = " + allBleats);
+      log.info("bleats = {} ", allBleats);
     };
   }
 }

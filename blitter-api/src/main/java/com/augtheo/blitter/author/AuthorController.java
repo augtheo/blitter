@@ -71,9 +71,10 @@ public class AuthorController implements UsersApi, RegisterApi {
   // TODO: This should also be a paginated API
   @Override
   public ResponseEntity<List<AuthorRes>> getFollowingUsers(String username) {
-    return ResponseEntity.ok(authorService.getAuthorByUsername(username).getFollowing().stream()
-        .map(this::domainModelConverter)
-        .toList());
+    return ResponseEntity.ok(
+        authorService.getAuthorByUsername(username).getFollowing().stream()
+            .map(this::domainModelConverter)
+            .toList());
   }
 
   @Override

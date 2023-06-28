@@ -4,17 +4,17 @@ info:
   description: A RESTful API for blitter, a twitter clone
   version: 0.3.0
 servers:
-  - url : http://localhost:8080/v2
+  - url: http://localhost:8080/v2
 tags:
   - name: Bleats
     description: Operations related to bleats
 security:
-  - blitterBearerAuth : []
+  - blitterBearerAuth: []
 paths:
   /auth:
     post:
       tags:
-      - Authentication
+        - Authentication
       summary: Returns the JWT once authenticated
       responses:
         "200":
@@ -27,7 +27,7 @@ paths:
                   jwt:
                     type: string
       security:
-        - blitterBasicAuth : []
+        - blitterBasicAuth: []
   /logout:
     post:
       tags:
@@ -40,7 +40,7 @@ paths:
   /bleats:
     get:
       tags:
-      - Bleats
+        - Bleats
       summary: Get a list of bleats
       description: Returns a list of bleats with pagination
       parameters:
@@ -64,21 +64,23 @@ paths:
             application/json:
               schema:
                 type: object
-                properties: 
+                properties:
                   bleats:
-                    $ref: '#/components/schemas/BleatsRes'
+                    $ref: "#/components/schemas/BleatsRes"
                   page:
                     type: integer
                   per_page:
                     type: integer
-                  total:
+                  total_pages:
+                    type: integer
+                  total_bleats:
                     type: integer
                     format: int64
-        '500':
+        "500":
           description: Internal server error
     post:
       tags:
-      - Bleats
+        - Bleats
       summary: Creates a new bleat
       description: Creates a new bleat
       operationId: postBleat
@@ -86,17 +88,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BleatReq'
+              $ref: "#/components/schemas/BleatReq"
       responses:
         "201":
           description: The bleat was created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BleatRes'
-        '400':
+                $ref: "#/components/schemas/BleatRes"
+        "400":
           description: Bad request
-        '500':
+        "500":
           description: Internal server error
   /bleats/{id}:
     get:
@@ -120,33 +122,33 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BleatRes'
+                $ref: "#/components/schemas/BleatRes"
     patch:
       summary: Update a bleat by id
       tags:
-      - Bleats
+        - Bleats
       operationId: updateBleat
       parameters:
-      - name: id
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: integer
-          format: int64
+        - name: id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: integer
+            format: int64
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BleatReq'
+              $ref: "#/components/schemas/BleatReq"
       responses:
         "200":
           description: Return bleat
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BleatRes'
+                $ref: "#/components/schemas/BleatRes"
     delete:
       tags:
         - Bleats
@@ -211,7 +213,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BleatsRes'
+                $ref: "#/components/schemas/BleatsRes"
     post:
       tags:
         - Bleats
@@ -231,14 +233,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BleatReq'
+              $ref: "#/components/schemas/BleatReq"
       responses:
         "200":
           description: Return bleat
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BleatRes'
+                $ref: "#/components/schemas/BleatRes"
   /register:
     post:
       tags:
@@ -249,7 +251,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterReq'
+              $ref: "#/components/schemas/RegisterReq"
         required: true
       responses:
         "201":
@@ -258,7 +260,7 @@ paths:
   /users:
     get:
       tags:
-      - Users
+        - Users
       description: returns the current user
       operationId: getSelf
       responses:
@@ -267,29 +269,29 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthorRes'
+                $ref: "#/components/schemas/AuthorRes"
 
   /users/{username}:
     get:
       tags:
-      - Users
+        - Users
       description: returns a specific author
       operationId: getAuthor
       parameters:
-      - name: username
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: username
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
       responses:
         "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthorRes'
+                $ref: "#/components/schemas/AuthorRes"
   /users/{username}/bleats:
     get:
       tags:
@@ -310,27 +312,27 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BleatsRes'
+                $ref: "#/components/schemas/BleatsRes"
   /users/{username}/liked:
     get:
       tags:
-      - Users
+        - Users
       summary: Get a list of bleats liked by user
       parameters:
-      - name: username
-        in: path
-        required: true
-        style: simple
-        explode: false
-        schema:
-          type: string
+        - name: username
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
       responses:
         "200":
           description: All the bleats liked by {username}
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BleatsRes'
+                $ref: "#/components/schemas/BleatsRes"
   /users/{username}/follow:
     post:
       tags:
@@ -344,9 +346,9 @@ paths:
             type: string
       operationId: followUser
       responses:
-        '200':
+        "200":
           description: Successfully followed
-        '404':
+        "404":
           description: User not found
   /users/{username}/unfollow:
     post:
@@ -361,9 +363,9 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Successfully unfollowed
-        '404':
+        "404":
           description: User not found
   /users/{username}/following:
     get:
@@ -378,15 +380,15 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AuthorRes'
-        '404':
+                  $ref: "#/components/schemas/AuthorRes"
+        "404":
           description: User not found
 components:
   securitySchemes:
@@ -441,7 +443,7 @@ components:
     BleatsRes:
       type: array
       items:
-        $ref: '#/components/schemas/BleatRes'
+        $ref: "#/components/schemas/BleatRes"
     AuthorRes:
       type: object
       properties:
