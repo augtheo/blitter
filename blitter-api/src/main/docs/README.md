@@ -13,6 +13,7 @@ All URIs are relative to *http://localhost:8080/v2*
 *BleatsApi* | [**getBleat**](Apis/BleatsApi.md#getbleat) | **GET** /bleats/{id} | Get a bleat by id |
 *BleatsApi* | [**getBleatReplies**](Apis/BleatsApi.md#getbleatreplies) | **GET** /bleats/{id}/reply | Get a list of replies to a bleat by id |
 *BleatsApi* | [**getBleats**](Apis/BleatsApi.md#getbleats) | **GET** /bleats | Get a list of bleats |
+*BleatsApi* | [**getBleatsAll**](Apis/BleatsApi.md#getbleatsall) | **GET** /all | Get a list of bleats |
 *BleatsApi* | [**postBleat**](Apis/BleatsApi.md#postbleat) | **POST** /bleats | Creates a new bleat |
 *BleatsApi* | [**replyBleat**](Apis/BleatsApi.md#replybleat) | **POST** /bleats/{id}/reply | Post a reply to a bleat by id |
 *BleatsApi* | [**updateBleat**](Apis/BleatsApi.md#updatebleat) | **PATCH** /bleats/{id} | Update a bleat by id |
@@ -33,9 +34,9 @@ All URIs are relative to *http://localhost:8080/v2*
  - [AuthorRes](./Models/AuthorRes.md)
  - [BleatReq](./Models/BleatReq.md)
  - [BleatRes](./Models/BleatRes.md)
+ - [PaginatedBleats](./Models/PaginatedBleats.md)
  - [RegisterReq](./Models/RegisterReq.md)
  - [_auth_post_200_response](./Models/_auth_post_200_response.md)
- - [getBleats_200_response](./Models/getBleats_200_response.md)
  - [toggleLikeBleat_200_response](./Models/toggleLikeBleat_200_response.md)
 
 

@@ -132,6 +132,7 @@ function Paginator({ currentPage, totalResults, setCurrentPage }) {
 
 export default function PaginationFooter({
   currentPage,
+  totalPages,
   totalResults,
   setCurrentPage,
 }) {

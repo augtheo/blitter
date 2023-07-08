@@ -29,17 +29,20 @@ export default function NavBar({ darkMode, setDarkMode }) {
   useEffect(() => {
     const f = async () => {
       try {
-        const authorRes = await axios({
-          method: "get",
-          url: "/users",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
-          },
-        });
-        console.log(authorRes.data);
-        setAuthor(authorRes.data);
+        console.log(localStorage.getItem("bird-person-web.auth.token"));
+        if (localStorage.getItem("bird-person-web.auth.token") != null) {
+          const authorRes = await axios({
+            method: "get",
+            url: "/users",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization:
+                "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
+            },
+          });
+          console.log(authorRes.data);
+          setAuthor(authorRes.data);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -181,7 +184,7 @@ export default function NavBar({ darkMode, setDarkMode }) {
                         <Menu.Item>
                           {({ active }) => (
                             <Link
-                              to = {"/users/" + author.username}
+                              to={"/users/" + author.username}
                               className={classNames(
                                 active ? " bg-gray-900 text-gray-50" : "",
                                 "block px-4 py-2 text-sm "

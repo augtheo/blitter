@@ -21,10 +21,12 @@ public class BleatService {
     this.bleatRepository = bleatRepository;
   }
 
-  public Page<Bleat> getBleats(Integer page, Integer perPage, Author currentAuthor) {
+  public Page<Bleat> getBleats(Integer page, Integer perPage, Optional<Author> currentAuthor) {
     Pageable pageable = PageRequest.of(page, perPage);
-    return bleatRepository.findBleatByAuthorInOrderByLastModifiedDateDesc(
-        pageable, currentAuthor.getFollowing());
+    if (currentAuthor.isEmpty()) return bleatRepository.findAllByOrderByLastModifiedDateDesc(pageable);
+    else
+      return bleatRepository.findBleatByAuthorInOrderByLastModifiedDateDesc(
+          pageable, currentAuthor.get().getFollowing());
   }
 
   public Bleat postBleat(Bleat bleat) {
@@ -63,18 +65,25 @@ public class BleatService {
     }
   }
 
-  public Bleat getBleat(Long id) {
-    return bleatRepository.getReferenceById(id);
+  public Optional<Bleat> getBleat(Long id) {
+    return Optional.of(bleatRepository.getReferenceById(id));
   }
 
   public List<Bleat> getRepliesTo(Long id) {
-    Bleat bleat = getBleat(id);
-    return bleatRepository.findAllByParent(bleat);
+    Optional<Bleat> bleat = getBleat(id);
+    if (bleat.isPresent())
+    return bleatRepository.findAllByParent(bleat.get());
+    else 
+    return null;
+    
   }
 
   public Long getReplyCount(Long id) {
-    Bleat bleat = getBleat(id);
-    return bleatRepository.countByParent(bleat);
+    Optional<Bleat> bleat = getBleat(id);
+    if(bleat.isPresent()) 
+      return bleatRepository.countByParent(bleat.get());
+    else 
+      return null;
   }
 
   public Long getTotal() {

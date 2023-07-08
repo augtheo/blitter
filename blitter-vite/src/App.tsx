@@ -1,6 +1,5 @@
 import FourZeroFour from "./FourZeroFour";
 import NavBar from "./NavBar";
-import Landing from "./auth/Landing";
 import Login from "./auth/Login";
 import Register from "./auth/Register";
 import Bleat from "./bleat/Bleat";
@@ -27,14 +26,14 @@ export default function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route element={<NavBar darkMode={darkMode} setDarkMode={setDarkMode} />}>
+        <Route path="/" element={<Feed authRequired={false} />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/bleat/:id" element={<Bleat />} />
         <Route path="/users/:id" element={<User />} />
-        <Route path="/home" element={<Feed />} />
+        <Route path="/home" element={<Feed authRequired={true} />} />
       </Route>
       <Route path="/error" element={<UnderMaintenance />} />
       <Route path="*" element={<FourZeroFour />} />

@@ -43,24 +43,6 @@ export function LoginBase() {
         <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit}>
           <Fieldv2 val={"username"} lab={"Username"} />
           <Passwordv2 val={"password"} lab={"Password"} />
-          <div className="flex items-start">
-            <div className="flex h-5 items-center">
-              <input
-                id="remember"
-                aria-describedby="remember"
-                type="checkbox"
-                className="focus:ring-3 h-4 w-4 rounded border border-gray-300 bg-gray-50 focus:ring-primary-300 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-primary-600"
-              />
-            </div>
-            <div className="ml-3 text-sm">
-              <label
-                htmlFor="remember"
-                className="font-light text-gray-500 dark:text-gray-300"
-              >
-                Remember me
-              </label>
-            </div>
-          </div>
           <button
             type="submit"
             className="w-full rounded-lg bg-primary-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"

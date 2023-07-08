@@ -8,6 +8,7 @@ All URIs are relative to *http://localhost:8080/v2*
 | [**getBleat**](BleatsApi.md#getBleat) | **GET** /bleats/{id} | Get a bleat by id |
 | [**getBleatReplies**](BleatsApi.md#getBleatReplies) | **GET** /bleats/{id}/reply | Get a list of replies to a bleat by id |
 | [**getBleats**](BleatsApi.md#getBleats) | **GET** /bleats | Get a list of bleats |
+| [**getBleatsAll**](BleatsApi.md#getBleatsAll) | **GET** /all | Get a list of bleats |
 | [**postBleat**](BleatsApi.md#postBleat) | **POST** /bleats | Creates a new bleat |
 | [**replyBleat**](BleatsApi.md#replyBleat) | **POST** /bleats/{id}/reply | Post a reply to a bleat by id |
 | [**updateBleat**](BleatsApi.md#updateBleat) | **PATCH** /bleats/{id} | Update a bleat by id |
@@ -94,7 +95,7 @@ Get a list of replies to a bleat by id
 
 <a name="getBleats"></a>
 # **getBleats**
-> getBleats_200_response getBleats(page, per\_page)
+> PaginatedBleats getBleats(page, per\_page, feed\_type)
 
 Get a list of bleats
 
@@ -106,10 +107,40 @@ Get a list of bleats
 |------------- | ------------- | ------------- | -------------|
 | **page** | **Integer**| The page number to retrieve (defaults to 1) | [optional] [default to 1] |
 | **per\_page** | **Integer**| The number of items per page to retrieve (defaults to 10) | [optional] [default to 10] |
+| **feed\_type** | **String**|  | [optional] [default to null] [enum: home, feed] |
 
 ### Return type
 
-[**getBleats_200_response**](../Models/getBleats_200_response.md)
+[**PaginatedBleats**](../Models/PaginatedBleats.md)
+
+### Authorization
+
+[blitterBearerAuth](../README.md#blitterBearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="getBleatsAll"></a>
+# **getBleatsAll**
+> PaginatedBleats getBleatsAll(page, per\_page, feed\_type)
+
+Get a list of bleats
+
+    Returns a list of bleats with pagination
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **page** | **Integer**| The page number to retrieve (defaults to 1) | [optional] [default to 1] |
+| **per\_page** | **Integer**| The number of items per page to retrieve (defaults to 10) | [optional] [default to 10] |
+| **feed\_type** | **String**|  | [optional] [default to null] [enum: home, feed] |
+
+### Return type
+
+[**PaginatedBleats**](../Models/PaginatedBleats.md)
 
 ### Authorization
 

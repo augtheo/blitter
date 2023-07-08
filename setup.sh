@@ -1,21 +1,14 @@
 #!/bin/bash
-echo "Setup database credentials"
 printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 
-echo "Enter the database name: "
-read dbname
+get_hash() {
+    echo "$(echo -n $RANDOM | md5sum | head -c 20 )"
+}
+echo "DB_NAME=$(get_hash)" > .env
+echo "DB_USER=$(get_hash)"  >> .env
+echo "DB_PASS=$(get_hash)"  >> .env
 
-echo "Enter the database username: "
-read uname
-
-echo "Enter the database password: "
-read pword
-
-echo "DB_NAME=$dbname" > .env
-echo "DB_USER=$uname"  >> .env
-echo "DB_PASS=$pword"  >> .env
-
-echo "Creating .env file with given credentials!"
+echo "Creating .env file and generating application keys"
 printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 
 openssl genrsa -out blitter-api/src/main/resources/app.key 2048
