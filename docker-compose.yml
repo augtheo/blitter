@@ -6,13 +6,12 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DB_NAME}
       - SPRING_DATASOURCE_USERNAME=${DB_USER}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASS}
-    depends_on: 
+    depends_on:
       db:
         condition: service_healthy
     ports:
       - 8080:8080
     networks:
-      - react-spring
       - spring-postgresql
   db:
     image: postgres
@@ -22,7 +21,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASS}
     restart: always
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
     volumes:
       - db-data:/var/lib/postgresql/data
@@ -33,14 +32,10 @@ services:
       context: blitter-vite
     volumes:
       - /project/node_modules
-    networks:
-      - react-spring
     depends_on:
       - blitter-api
     restart: always
 volumes:
   db-data: {}
 networks:
-  react-spring: {}
   spring-postgresql: {}
-

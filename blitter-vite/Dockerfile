@@ -11,7 +11,6 @@ ENTRYPOINT [ "npm", "run" , "dev" ]
 FROM dev AS build
 RUN npm run build
 
-# FROM nginx:alpine AS prod
-FROM nginx:1.15
+FROM nginx:alpine AS prod
 COPY --from=build /app/dist/ /usr/share/nginx/html
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
