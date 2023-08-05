@@ -1,30 +1,32 @@
 package com.augtheo.blitter.bleat;
 
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.augtheo.blitter.author.Author;
 import com.augtheo.blitter.author.AuthorService;
 import com.augtheo.blitter.model.BleatReq;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@TestInstance(Lifecycle.PER_CLASS)
-@ActiveProfiles("test") // TODO: Avoid repeating ActiveProfiles annotation
+@ActiveProfiles("test")
 public class BleatRequestTest {
 
   @Autowired private MockMvc mockMvc;
@@ -35,38 +37,40 @@ public class BleatRequestTest {
 
   @MockBean private BleatService mockBleatService;
 
-  private Author author = new Author("Test42", "Test User", "TESTpassword123");
-  private Bleat bleat = new Bleat("Hello World", author);
+  private Author author;
+  private Bleat bleat;
+  private final String USERNAME = "TEST";
+  private final String MESSAGE = "Hello World";
 
-  @BeforeAll
+  @BeforeEach
   public void init() {
-    Mockito.when(mockAuthorService.getAuthorByUsername("Test42")).thenReturn(author);
-    Mockito.when(mockBleatService.postBleat(Mockito.any())).thenReturn(bleat);
+    author = new Author(USERNAME, "Test User", "password");
+    bleat = new Bleat(MESSAGE, author);
   }
 
   @Test
-  @WithMockUser
+  @DisplayName("Should add a bleat")
+  @WithMockUser(username = USERNAME)
   public void shouldAddABleat() throws Exception {
+    when(mockBleatService.postBleat(any())).thenReturn(bleat);
 
-    BleatReq bleatReq = new BleatReq();
-    bleatReq.setMessage("Hello World");
-    String requestBody = objectMapper.writeValueAsString(bleatReq);
+    String requestBody =
+        objectMapper.writeValueAsString(BleatReq.builder().message(MESSAGE).build());
 
-    this.mockMvc
-        .perform(
-            MockMvcRequestBuilders.post("/bleats")
-                .with(SecurityMockMvcRequestPostProcessors.csrf())
-                .with(SecurityMockMvcRequestPostProcessors.user(author))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
-        .andExpect(MockMvcResultMatchers.status().isOk());
+    mockMvc
+        .perform(post("/bleats").contentType(MediaType.APPLICATION_JSON).content(requestBody))
+        .andExpect(status().isOk());
   }
 
   @Test
-  @WithMockUser
+  @DisplayName("Should get list of bleats")
+  @WithMockUser(username = USERNAME)
   public void shouldGetListOfBleats() throws Exception {
-    this.mockMvc
-        .perform(MockMvcRequestBuilders.get("/bleats"))
-        .andExpect(MockMvcResultMatchers.status().isOk());
+
+    // mock
+    when(mockAuthorService.getAuthorByUsername(USERNAME)).thenReturn(author);
+    when(mockBleatService.getBleats(any(), any(), any())).thenReturn(mock(Page.class));
+
+    mockMvc.perform(get("/bleats")).andExpect(status().isOk());
   }
 }

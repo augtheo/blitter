@@ -1,15 +1,13 @@
 package com.augtheo.blitter.security;
 
-import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,37 +41,44 @@ public class ApplicationSecurityConfiguration {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.cors(Customizer.withDefaults())
+    return http.cors(Customizer.withDefaults())
         .authorizeHttpRequests(
-            (authorize) ->
+            authorize ->
                 authorize
                     .requestMatchers("/register", "/all")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
-        .csrf((csrf) -> csrf.ignoringRequestMatchers("/auth", "/register"))
+        .csrf()
+        .disable()
         .httpBasic(Customizer.withDefaults())
         .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
         .sessionManagement(
-            (session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .exceptionHandling(
-            (exceptions) ->
+            exceptions ->
                 exceptions
                     .authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                    .accessDeniedHandler(new BearerTokenAccessDeniedHandler()));
-    return http.build();
+                    .accessDeniedHandler(new BearerTokenAccessDeniedHandler()))
+        .build();
   }
 
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedHeaders(Arrays.asList("Origin", "Authorization", "Content-Type"));
-    configuration.setAllowedOrigins(
-        List.of("http://localhost:3000", "https://blitter.augtheo.com"));
-    configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "DELETE", "PUT"));
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-    return source;
+    return new UrlBasedCorsConfigurationSource() {
+      {
+        registerCorsConfiguration(
+            "/**",
+            new CorsConfiguration() {
+              {
+                setAllowedHeaders(Arrays.asList("Origin", "Authorization", "Content-Type"));
+                setAllowedOrigins(List.of("http://localhost:3000", "https://blitter.augtheo.com"));
+                setAllowedMethods(
+                    Arrays.asList("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
+              }
+            });
+      }
+    };
   }
 
   @Bean
@@ -83,9 +88,11 @@ public class ApplicationSecurityConfiguration {
 
   @Bean
   public JwtEncoder jwtEncoder() {
-    JWK jwk = new RSAKey.Builder(this.publicKey).privateKey(this.privateKey).build();
-    JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
-    return new NimbusJwtEncoder(jwkSource);
+    return Optional.ofNullable(this.publicKey)
+        .map(publicKey -> new RSAKey.Builder(publicKey).privateKey(this.privateKey).build())
+        .map(jwk -> new ImmutableJWKSet<>(new JWKSet(jwk)))
+        .map(NimbusJwtEncoder::new)
+        .orElseThrow(() -> new IllegalStateException("Public key cannot be null"));
   }
 
   @Bean

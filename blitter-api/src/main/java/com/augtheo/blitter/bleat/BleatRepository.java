@@ -23,5 +23,7 @@ public interface BleatRepository extends JpaRepository<Bleat, Long> {
 
   List<Bleat> findAllByParent(Bleat parent);
 
+  Boolean existsByIdAndAuthor(Long id, Author author);
+
   Long countByParent(Bleat parent);
 }

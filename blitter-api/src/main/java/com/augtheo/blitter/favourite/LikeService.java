@@ -38,6 +38,12 @@ public class LikeService {
         .isPresent();
   }
 
+  // TODO: Implememt these
+
+  public void addLike(Long bleatId, Long authorId) {}
+
+  public void removeLike(Long bleatId, Long authorId) {}
+
   public Pair<Integer, Boolean> toggleLike(Long bleatId, Long authorId) {
 
     Optional<Favourite> optionalFavourite =
@@ -46,11 +52,11 @@ public class LikeService {
     Bleat bleat = bleatRepository.getReferenceById(bleatId);
 
     if (optionalFavourite.isPresent()) {
-      bleat.setLikeCount(bleat.getLikeCount() - 1);
+      // bleat.setLikeCount(bleat.getLikeCount() - 1);
       bleatRepository.save(bleat);
       likeRepository.deleteById(optionalFavourite.get().getId());
     } else {
-      bleat.setLikeCount(bleat.getLikeCount() + 1);
+      // bleat.setLikeCount(bleat.getLikeCount() + 1);
       bleatRepository.save(bleat);
       likeRepository.save(new Favourite(bleat, authorRepository.getReferenceById(authorId)));
     }

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.util.Pair;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -91,11 +92,8 @@ public class BleatController implements BleatsApi, AllApi {
 
   @Override
   public ResponseEntity<PaginatedBleats> getBleats(Integer page, Integer perPage, String feedType) {
-    Page<Bleat> bleatPage =
-        switch (feedType) {
-          case "feed" -> bleatService.getBleats(page, perPage, Optional.empty());
-          default -> bleatService.getBleats(page, perPage, Optional.of(getCurrentAuthor()));
-        };
+    log.info("author = {}", getCurrentAuthor());
+    Page<Bleat> bleatPage = bleatService.getBleats(page, perPage, Optional.of(getCurrentAuthor()));
     PaginatedBleats paginatedBleats =
         PaginatedBleats.builder()
             .bleats(
@@ -137,6 +135,7 @@ public class BleatController implements BleatsApi, AllApi {
   }
 
   @Override
+  @PreAuthorize("@bleatService.hasWriteAccess(#id)")
   public ResponseEntity<BleatRes> updateBleat(Long id, BleatReq bleatReq) {
     try {
       Bleat bleat = bleatService.updateBleat(id, bleatReq.getMessage());
@@ -147,13 +146,16 @@ public class BleatController implements BleatsApi, AllApi {
   }
 
   private Author getCurrentAuthor() {
-    // FIXME Currently using two separate paths
+    // FIXME: Currently using two separate paths
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    log.info("authentication = {} ", authentication);
     Long id = null;
     if (authentication instanceof Jwt) {
       Jwt token = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-      id = token.getClaim("author_id");
-      return authorService.getAuthorById(id);
+      // id = token.getClaim("author_id");
+      log.info("jwt = {} ", token);
+      // return authorService.getAuthorById(id);
+      return authorService.getAuthorByUsername(token.getSubject());
     } else {
       return authorService.getAuthorByUsername(authentication.getName());
     }

@@ -1,6 +1,7 @@
 package com.augtheo.blitter.bleat;
 
 import com.augtheo.blitter.author.Author;
+import com.augtheo.blitter.author.AuthorService;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,15 +18,18 @@ import org.springframework.stereotype.Service;
 public class BleatService {
 
   private final BleatRepository bleatRepository;
+  private final AuthorService authorService;
 
   @Autowired
-  BleatService(BleatRepository bleatRepository) {
+  BleatService(BleatRepository bleatRepository, AuthorService authorService) {
     this.bleatRepository = bleatRepository;
+    this.authorService = authorService;
   }
 
   public Page<Bleat> getBleats(Integer page, Integer perPage, Optional<Author> currentAuthor) {
     Pageable pageable = PageRequest.of(page, perPage);
-    if (currentAuthor.isEmpty()) return bleatRepository.findAllByOrderByLastModifiedDateDesc(pageable);
+    if (currentAuthor.isEmpty())
+      return bleatRepository.findAllByOrderByLastModifiedDateDesc(pageable);
     else
       return bleatRepository.findBleatByAuthorInOrderByLastModifiedDateDesc(
           pageable, currentAuthor.get().getFollowing());
@@ -35,10 +41,17 @@ public class BleatService {
 
   public Bleat replyBleat(Bleat bleat, Long id) {
     Bleat parent = bleatRepository.getReferenceById(id);
-    parent.setReplyCount(parent.getReplyCount() + 1);
+    // parent.setReplyCount(parent.getReplyCount() + 1);
     bleatRepository.save(parent);
     bleat.setParent(parent);
     return bleatRepository.save(bleat);
+  }
+
+  public boolean hasWriteAccess(Long id) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    log.info("authentication = {} ", authentication);
+    Author author = authorService.getAuthorByUsername(authentication.getName());
+    return bleatRepository.existsByIdAndAuthor(id, author);
   }
 
   public Bleat updateBleat(Long id, String message) {
@@ -58,7 +71,7 @@ public class BleatService {
       Bleat bleat = optionalBleat.get();
       Bleat parent = bleat.getParent();
       if (parent != null) {
-        parent.setReplyCount(parent.getReplyCount() - 1);
+        // parent.setReplyCount(parent.getReplyCount() - 1);
         bleatRepository.save(parent);
       }
       bleatRepository.delete(bleat);
@@ -71,19 +84,14 @@ public class BleatService {
 
   public List<Bleat> getRepliesTo(Long id) {
     Optional<Bleat> bleat = getBleat(id);
-    if (bleat.isPresent())
-    return bleatRepository.findAllByParent(bleat.get());
-    else 
-    return null;
-    
+    if (bleat.isPresent()) return bleatRepository.findAllByParent(bleat.get());
+    else return null;
   }
 
   public Long getReplyCount(Long id) {
     Optional<Bleat> bleat = getBleat(id);
-    if(bleat.isPresent()) 
-      return bleatRepository.countByParent(bleat.get());
-    else 
-      return null;
+    if (bleat.isPresent()) return bleatRepository.countByParent(bleat.get());
+    else return null;
   }
 
   public Long getTotal() {

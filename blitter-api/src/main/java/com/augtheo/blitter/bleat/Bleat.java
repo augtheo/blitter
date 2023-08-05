@@ -11,13 +11,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Transient;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -40,9 +45,9 @@ public class Bleat {
   @ManyToOne(fetch = FetchType.LAZY)
   private Author author;
 
-  @CreatedDate LocalDateTime createdDate;
-  @LastModifiedDate LocalDateTime lastModifiedDate;
-  private int likeCount;
+  @CreatedDate private LocalDateTime createdDate;
+
+  @LastModifiedDate private LocalDateTime lastModifiedDate;
 
   /*
   TODO: May need a separate Replies table
@@ -51,16 +56,33 @@ public class Bleat {
   private Bleat parent;
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parent")
-  private List<Bleat> children;
+  @LazyCollection(LazyCollectionOption.EXTRA)
+  private Set<Bleat> children = new HashSet<>();
 
-  @OneToMany(cascade = CascadeType.ALL, mappedBy = "bleat")
-  private List<Favourite> favourites;
+  @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "bleat")
+  @LazyCollection(LazyCollectionOption.EXTRA)
+  private Set<Favourite> favourites;
 
-  private int replyCount;
+  // TODO: make it transient
+  @Transient private int likeCount = 0;
+
+  // TODO: make it transient
+  @Transient private int replyCount = 0;
+
+  @PostLoad
+  private void loadTransients() {
+    if (children != null) {
+      replyCount = children.size();
+    }
+    if (favourites != null) {
+      likeCount = favourites.size();
+    }
+  }
 
   public Bleat(String message, Author author) {
     this.message = message;
     this.author = author;
-    this.likeCount = 0;
+    this.favourites = new HashSet<>();
+    // this.likeCount = 0;
   }
 }

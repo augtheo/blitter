@@ -1,8 +1,7 @@
 spring:
   sql.init.mode: always
-
   datasource:
-    url: jdbc:postgresql://localhost:5432/blitterdb
+    url: jdbc:postgresql://localhost:5432/blitterDB
     username: blitz
     driver-class-name: org.postgresql.Driver
   jpa:
@@ -13,13 +12,14 @@ spring:
         format_sql: "true"
     hibernate:
       ddl-auto: create-drop
-    show-sql: "true"
 jwt:
   public:
     key: classpath:app.pub
   private:
     key: classpath:app.key
 
-logging.level.org.hibernate:
-  SQL: debug
-  orm.jdbc.bind: trace
+logging:
+  level:
+    org.hibernate:
+      SQL: debug
+      orm.jdbc.bind: trace

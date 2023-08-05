@@ -1,6 +1,5 @@
 package com.augtheo.blitter.auth;
 
-import com.augtheo.blitter.author.Author;
 import java.time.Instant;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,8 +32,6 @@ public class AuthenticationController {
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(" "));
 
-    Author author = (Author) authentication.getPrincipal();
-
     JwtClaimsSet claims =
         JwtClaimsSet.builder()
             .issuer("self")
@@ -42,7 +39,6 @@ public class AuthenticationController {
             .expiresAt(now.plusSeconds(expiry))
             .subject(authentication.getName())
             .claim("scope", scope)
-            .claim("author_id", author.getId())
             .build();
 
     return Map.of("jwt", this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue());
