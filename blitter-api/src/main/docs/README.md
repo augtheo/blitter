@@ -8,12 +8,10 @@ All URIs are relative to *http://localhost:8080/v2*
 | Class | Method | HTTP request | Description |
 |------------ | ------------- | ------------- | -------------|
 | *AuthenticationApi* | [**authPost**](Apis/AuthenticationApi.md#authpost) | **POST** /auth | Returns the JWT once authenticated |
-*AuthenticationApi* | [**logoutPost**](Apis/AuthenticationApi.md#logoutpost) | **POST** /logout | Logs user out of the server |
 | *BleatsApi* | [**deleteBleat**](Apis/BleatsApi.md#deletebleat) | **DELETE** /bleats/{id} | Delete a bleat by id |
 *BleatsApi* | [**getBleat**](Apis/BleatsApi.md#getbleat) | **GET** /bleats/{id} | Get a bleat by id |
 *BleatsApi* | [**getBleatReplies**](Apis/BleatsApi.md#getbleatreplies) | **GET** /bleats/{id}/reply | Get a list of replies to a bleat by id |
 *BleatsApi* | [**getBleats**](Apis/BleatsApi.md#getbleats) | **GET** /bleats | Get a list of bleats |
-*BleatsApi* | [**getBleatsAll**](Apis/BleatsApi.md#getbleatsall) | **GET** /all | Get a list of bleats |
 *BleatsApi* | [**postBleat**](Apis/BleatsApi.md#postbleat) | **POST** /bleats | Creates a new bleat |
 *BleatsApi* | [**replyBleat**](Apis/BleatsApi.md#replybleat) | **POST** /bleats/{id}/reply | Post a reply to a bleat by id |
 *BleatsApi* | [**updateBleat**](Apis/BleatsApi.md#updatebleat) | **PATCH** /bleats/{id} | Update a bleat by id |

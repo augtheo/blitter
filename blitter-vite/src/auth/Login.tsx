@@ -1,10 +1,12 @@
+import React from "react";
 import { Passwordv2 } from "../utils/Forms";
 import { Fieldv2 } from "../utils/Forms";
 import axios from "../utils/axios";
 import Base from "./Base";
 import { Link, useNavigate } from "react-router-dom";
+import { AlertMessage } from "../alerts";
 
-export function LoginBase() {
+export function LoginBase({ alertMessages, setAlertMessages }) {
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
@@ -28,6 +30,15 @@ export function LoginBase() {
       localStorage.setItem("bird-person-web.auth.token", response.data.jwt);
       localStorage.setItem("currentUser", formJson.username);
       if (response.status === 200) {
+        const alertMessage: AlertMessage = {
+          color: "success",
+          message: {
+            title: "Successfully logged in",
+            content: "Great",
+          },
+        };
+        setAlertMessages([...alertMessages, alertMessage]);
+        // console.log(alertMessages);
         navigate("/home");
       }
     } catch (error) {
@@ -64,6 +75,15 @@ export function LoginBase() {
   );
 }
 
-export default function Login() {
-  return <Base child={<LoginBase />} />;
+export default function Login({ alertMessages, setAlertMessages }) {
+  return (
+    <Base
+      child={
+        <LoginBase
+          alertMessages={alertMessages}
+          setAlertMessages={setAlertMessages}
+        />
+      }
+    />
+  );
 }

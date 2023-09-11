@@ -28,49 +28,6 @@ paths:
                     type: string
       security:
         - blitterBasicAuth: []
-  /logout:
-    post:
-      tags:
-        - Authentication
-      summary: Logs user out of the server
-      description: JWT is invalidated
-      responses:
-        default:
-          description: Successful operation
-  /all:
-    get:
-      tags:
-        - Bleats
-      summary: Get a list of bleats
-      description: Returns a list of bleats with pagination
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-          description: The page number to retrieve (defaults to 1)
-        - in: query
-          name: per_page
-          schema:
-            type: integer
-            default: 10
-          description: The number of items per page to retrieve (defaults to 10)
-        - in: query
-          name: feed_type
-          schema:
-            type: string
-            enum: [home, feed]
-      operationId: getBleatsAll
-      responses:
-        "200":
-          description: A list of bleats
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginatedBleats"
-        "500":
-          description: Internal server error
   /bleats:
     get:
       tags:
@@ -90,11 +47,6 @@ paths:
             type: integer
             default: 10
           description: The number of items per page to retrieve (defaults to 10)
-        - in: query
-          name: feed_type
-          schema:
-            type: string
-            enum: [home, feed]
       operationId: getBleats
       responses:
         "200":

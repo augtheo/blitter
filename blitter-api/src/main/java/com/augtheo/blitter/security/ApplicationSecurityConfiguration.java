@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -45,7 +46,12 @@ public class ApplicationSecurityConfiguration {
         .authorizeHttpRequests(
             authorize ->
                 authorize
-                    .requestMatchers("/register", "/all")
+                    .requestMatchers(
+                        new RegexRequestMatcher(
+                            "\\/bleats.*", "GET")) // TODO: match /bleats?page=10&per_page=100
+                    .permitAll()
+                    .requestMatchers(
+                        "/register", "/actuator") // FIXME: actuator should not be exposed outside
                     .permitAll()
                     .anyRequest()
                     .authenticated())

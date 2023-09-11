@@ -1,3 +1,4 @@
+import React from "react";
 import PaginationFooter from "../PaginationFooter";
 import axios from "../utils/axios";
 import BleatList from "./BleatList";
@@ -12,14 +13,18 @@ function PublishBleat({ setSomeBleat }) {
       const formData = new FormData(form);
       const formJson = Object.fromEntries(formData.entries());
 
+      let headers = {
+        "Content-Type": "application/json",
+      };
+
+      if (localStorage.getItem("bird-person-web.auth.token")) {
+        headers["Authorization"] =
+          "Bearer " + localStorage.getItem("bird-person-web.auth.token");
+      }
       const response = await axios({
         method: "post",
         url: "/bleats",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization:
-            "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
-        },
+        headers: headers,
         data: {
           message: formJson.postContents,
         },
@@ -87,7 +92,7 @@ function PublishBleat({ setSomeBleat }) {
   );
 }
 
-export default function Feed({ authRequired }) {
+export default function Feed() {
   const [someBleat, setSomeBleat] = useState({});
   const [bleats, setBleats] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -101,7 +106,7 @@ export default function Feed({ authRequired }) {
   return (
     <div className="flex min-h-screen grow flex-col">
       <div className="grow bg-gray-50 dark:bg-black">
-        {authRequired && <PublishBleat setSomeBleat={setSomeBleat} />}
+        <PublishBleat setSomeBleat={setSomeBleat} />
         <BleatList
           bleats={bleats}
           setBleats={setBleats}

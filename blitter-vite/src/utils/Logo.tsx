@@ -1,12 +1,13 @@
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Logo() {
   return (
-    <Link to='/home'>
+    <Link to="/home">
       <img
-        className='hidden h-8 w-auto lg:block'
-        src= '/logo.svg'
-        alt='Blitter'
+        className="hidden h-8 w-auto lg:block"
+        src="/logo.svg"
+        alt="Blitter"
       />
     </Link>
   );

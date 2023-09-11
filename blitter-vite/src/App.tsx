@@ -1,3 +1,4 @@
+import React from "react";
 import FourZeroFour from "./FourZeroFour";
 import NavBar from "./NavBar";
 import Login from "./auth/Login";
@@ -9,11 +10,15 @@ import Settings from "./Settings";
 import { useState, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import UnderMaintenance from "./UnderMaintenance";
+import DismissableAlert from "./alerts";
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("darkMode") || true
   );
+
+  const [alertMessages, setAlertMessages] = useState([]);
+
   useEffect(() => {
     const root = window.document.documentElement;
     if (darkMode) {
@@ -25,18 +30,40 @@ export default function App() {
   }, [darkMode]);
 
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route element={<NavBar darkMode={darkMode} setDarkMode={setDarkMode} />}>
-        <Route path="/" element={<Feed authRequired={false} />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/bleat/:id" element={<Bleat />} />
-        <Route path="/users/:id" element={<User />} />
-        <Route path="/home" element={<Feed authRequired={true} />} />
-      </Route>
-      <Route path="/error" element={<UnderMaintenance />} />
-      <Route path="*" element={<FourZeroFour />} />
-    </Routes>
+    alertMessages &&
+    alertMessages.map((alertMessage) => {
+      return <DismissableAlert alertMessage={alertMessage} />;
+    }) && (
+      <Routes>
+        <Route
+          path="/login"
+          element={
+            <Login
+              alertMessages={alertMessages}
+              setAlertMessages={setAlertMessages}
+            />
+          }
+        />
+        <Route path="/register" element={<Register />} />
+        <Route
+          element={
+            <NavBar
+              alertMessages={alertMessages}
+              setAlertMessages={setAlertMessages}
+              darkMode={darkMode}
+              setDarkMode={setDarkMode}
+            />
+          }
+        >
+          <Route path="/" element={<Feed />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/bleat/:id" element={<Bleat />} />
+          <Route path="/users/:id" element={<User />} />
+          <Route path="/home" element={<Feed />} />
+        </Route>
+        <Route path="/error" element={<UnderMaintenance />} />
+        <Route path="*" element={<FourZeroFour />} />
+      </Routes>
+    )
   );
 }

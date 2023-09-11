@@ -1,25 +1,25 @@
+import React from "react";
 import axios from "../utils/axios";
 import BleatCard from "./BleatCard";
 import { useEffect } from "react";
 
 export default function BleatList({
-  authRequired,
+  // authRequired,
   bleats,
   setBleats,
   currentPage,
   setTotalResults,
   setTotalPages,
 }) {
-  const reqUrl = authRequired ? "/bleats" : "/all";
+  const reqUrl = "/bleats";
   let headers = {
     "Content-Type": "application/json",
   };
 
-  if (authRequired) {
+  if (localStorage.getItem("bird-person-web.auth.token")) {
     headers["Authorization"] =
       "Bearer " + localStorage.getItem("bird-person-web.auth.token");
   }
-  console.log(headers);
 
   useEffect(() => {
     const f = async () => {
@@ -30,7 +30,6 @@ export default function BleatList({
           params: {
             page: currentPage - 1,
             per_page: 10,
-            feed_type: "feed",
           },
           headers: headers,
         });

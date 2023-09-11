@@ -1,6 +1,7 @@
 package com.augtheo.blitter.author;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,10 +17,6 @@ public class AuthorService implements UserDetailsService {
   AuthorService(AuthorRepository authorRepository) {
     this.authorRepository = authorRepository;
   }
-
-  // public List<Author> getAuthors() {
-  //   return authorRepository.findAll();
-  // }
 
   public Author getAuthorById(Long id) {
     return authorRepository.findById(id).orElseThrow(AuthorNotFoundException::new);
@@ -45,6 +42,10 @@ public class AuthorService implements UserDetailsService {
         .findByUsername(username)
         .orElseThrow(
             () -> new UsernameNotFoundException("User with username " + username + " not found"));
+  }
+
+  public Optional<Author> getOptionalAuthorByUsername(String username) {
+    return authorRepository.findByUsername(username);
   }
 
   public Author getAuthorByUsername(String username) {

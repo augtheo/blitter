@@ -1,7 +1,7 @@
 spring:
   sql.init.mode: always
   datasource:
-    url: jdbc:postgresql://localhost:5432/blitterDB
+    url: jdbc:postgresql://localhost:5432/blitterdb
     username: blitz
     driver-class-name: org.postgresql.Driver
   jpa:
@@ -17,7 +17,15 @@ jwt:
     key: classpath:app.pub
   private:
     key: classpath:app.key
-
+management.endpoints.web.exposure.include: prometheus,health,info,metric
+# management:
+#   influx:
+#     metrics:
+#       export:
+#         org: com.augtheo.blitter
+#         bucket: blitter
+#         token: lovecraftian
+#         uri: http://localhost:8086
 logging:
   level:
     org.hibernate:

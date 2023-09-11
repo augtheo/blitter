@@ -1,10 +1,11 @@
+import React from "react";
 import axios from "../utils/axios";
 import BleatCard from "../bleat/BleatCard";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-function Follow({ author}) {
+function Follow({ author }) {
   const [isFollowing, setIsFollowing] = useState(author.following);
 
   const toggle = (action) => {
@@ -69,7 +70,7 @@ function UserCard({ author, setAuthor }) {
                 </span>
               </div>
             </div>
-            <Follow author={author}/>
+            <Follow author={author} />
           </div>
         </div>
       </div>
@@ -81,6 +82,14 @@ export default function User() {
   const { id } = useParams();
   const [author, setAuthor] = useState({});
   const [bleatsByAuthor, setBleatsByAuthor] = useState([]);
+  let headers = {
+    "Content-Type": "application/json",
+  };
+
+  if (localStorage.getItem("bird-person-web.auth.token")) {
+    headers["Authorization"] =
+      "Bearer " + localStorage.getItem("bird-person-web.auth.token");
+  }
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -89,21 +98,13 @@ export default function User() {
         const authorRes = await axios({
           method: "get",
           url: "/users/" + id,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
-          },
+          headers: headers,
         });
 
         const bleatsByUser = await axios({
           method: "get",
           url: "/users/" + id + "/bleats",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
-          },
+          headers: headers,
         });
 
         setAuthor(authorRes.data);
@@ -122,6 +123,7 @@ export default function User() {
         <div>
           {bleatsByAuthor.map((bleat) => (
             <BleatCard
+              isBleatView={false}
               bleat={bleat}
               key={bleat.id}
               setBleats={setBleatsByAuthor}

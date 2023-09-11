@@ -13,6 +13,7 @@ services:
       - 8080:8080
     networks:
       - spring-postgresql
+      - blitter-monitoring
   db:
     image: postgres
     environment:
@@ -35,7 +36,39 @@ services:
     depends_on:
       - blitter-api
     restart: always
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    networks:
+      - blitter-monitoring
+    ports:
+      - 9090:9090
+    restart: always
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3060:3000
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana-provisioning/:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USERNAME}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    networks:
+      - blitter-monitoring
 volumes:
   db-data: {}
+  prometheus_data:
+  grafana-storage:
 networks:
   spring-postgresql: {}
+  blitter-monitoring: {}

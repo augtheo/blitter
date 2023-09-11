@@ -23,7 +23,7 @@ repositories {
 
 openApiGenerate {
     generatorName = 'spring'
-    inputSpec = 'src/main/resources/openapi-blitter-0.2.0-resolved.yaml'
+    inputSpec = "$projectDir/src/main/resources/openapi-blitter-0.2.0-resolved.yaml"
     packageName = 'com.augtheo.blitter'
     configOptions = [
             interfaceOnly: 'true',
@@ -47,8 +47,8 @@ openApiGenerate {
 
 tasks.register('generateDocs', GenerateTask) {
     generatorName = 'markdown'
-    inputSpec = 'src/main/resources/openapi-blitter-0.2.0-resolved.yaml'
-    outputDir = "$rootDir/src/main/docs/"
+    inputSpec = "$projectDir/src/main/resources/openapi-blitter-0.2.0-resolved.yaml"
+    outputDir = "$projectDir/src/main/docs/"
 }
 
 dependencies {
@@ -56,6 +56,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus:latest.release'
+
     // implementation 'org.springframework.boot:spring-boot-starter-websocket'
     // implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:${springCloudAwsVersion}")
     // implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'

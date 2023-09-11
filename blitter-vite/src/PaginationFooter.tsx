@@ -1,3 +1,4 @@
+import React from "react";
 import {
   BLITTER_APP_BLEAT_PAGE_SIZE,
   BLITTER_APP_BLEAT_MAX_PAGES,
@@ -79,6 +80,7 @@ function Paginator({ currentPage, totalResults, setCurrentPage }) {
         {/* Render the "First" button if we're not on the first page */}
         {currentPage > 1 && (
           <Page
+            active={false}
             val={"First"}
             pos={2}
             key={1}

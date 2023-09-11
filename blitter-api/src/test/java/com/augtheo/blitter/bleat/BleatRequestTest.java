@@ -56,7 +56,6 @@ public class BleatRequestTest {
 
     String requestBody =
         objectMapper.writeValueAsString(BleatReq.builder().message(MESSAGE).build());
-
     mockMvc
         .perform(post("/bleats").contentType(MediaType.APPLICATION_JSON).content(requestBody))
         .andExpect(status().isOk());

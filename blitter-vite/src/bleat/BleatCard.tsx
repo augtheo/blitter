@@ -1,3 +1,4 @@
+import React from "react";
 import axios from "../utils/axios";
 import { Menu, Transition } from "@headlessui/react";
 import {
@@ -12,7 +13,6 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 function BleatImage({ bleato }) {
-  console.log(bleato);
   if (bleato.image) {
     return (
       <img
@@ -88,7 +88,7 @@ export default function BleatCard({ bleat, setBleats, isBleatView }) {
         const formJson = Object.fromEntries(formData.entries());
 
         const response = await axios({
-          method: "put",
+          method: "patch",
           url: "/bleats/" + bleat.id,
           headers: {
             "Content-Type": "application/json",

@@ -1,3 +1,4 @@
+import React from "react";
 import Logo from "./utils/Logo";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -6,6 +7,8 @@ import { useNavigate, Outlet, Link } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
 import axios from "./utils/axios";
+
+import DismissableAlert from "./alerts";
 const navigation = [
   { name: "Home", href: "#", current: true },
   { name: "Trending", href: "#", current: false },
@@ -15,35 +18,117 @@ const navigation = [
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
-export default function NavBar({ darkMode, setDarkMode }) {
-  const navigate = useNavigate();
 
+function AuthenticatedUserOptions({ author, navigate }) {
   function handleLogout(event) {
     event.preventDefault();
     localStorage.removeItem("bird-person-web.auth.token");
+    // setAlertMessages([]);
     navigate("/login");
   }
+  return (
+    <>
+      <Menu.Item>
+        {({ active }) => (
+          <Link
+            to={"/users/" + author.username}
+            className={classNames(
+              active ? " bg-gray-900 text-gray-50" : "",
+              "block px-4 py-2 text-sm "
+            )}
+          >
+            Your Profile
+          </Link>
+        )}
+      </Menu.Item>
+      <Menu.Item>
+        {({ active }) => (
+          <a
+            href="#"
+            className={classNames(
+              active ? " bg-gray-900 text-gray-50" : "",
+              "block px-4 py-2 text-sm "
+            )}
+          >
+            Settings
+          </a>
+        )}
+      </Menu.Item>
+      <Menu.Item>
+        {({ active }) => (
+          <a
+            href="#"
+            onClick={handleLogout}
+            className={classNames(
+              active ? "bg-red-600 text-gray-50 " : "",
+              "block px-4 py-2 text-sm "
+            )}
+          >
+            Sign out
+          </a>
+        )}
+      </Menu.Item>
+    </>
+  );
+}
 
+function UnAuthenticatedUserOptions({ navigate }) {
+  function handleLogout(event) {
+    event.preventDefault();
+    localStorage.removeItem("bird-person-web.auth.token");
+    // setAlertMessages([]);
+    navigate("/login");
+  }
+  return (
+    <>
+      <Menu.Item>
+        {({ active }) => (
+          <Link
+            to={"/login/"}
+            className={classNames(
+              active ? " bg-gray-900 text-gray-50" : "",
+              "block px-4 py-2 text-sm "
+            )}
+          >
+            Login
+          </Link>
+        )}
+      </Menu.Item>
+    </>
+  );
+}
+export default function NavBar({
+  alertMessages,
+  setAlertMessages,
+  darkMode,
+  setDarkMode,
+}) {
   const [author, setAuthor] = useState({});
+  const navigate = useNavigate();
+  let headers = {
+    "Content-Type": "application/json",
+  };
+
+  if (localStorage.getItem("bird-person-web.auth.token")) {
+    headers["Authorization"] =
+      "Bearer " + localStorage.getItem("bird-person-web.auth.token");
+  }
 
   useEffect(() => {
     const f = async () => {
       try {
-        console.log(localStorage.getItem("bird-person-web.auth.token"));
         if (localStorage.getItem("bird-person-web.auth.token") != null) {
           const authorRes = await axios({
             method: "get",
             url: "/users",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization:
-                "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
-            },
+            headers: headers,
           });
-          console.log(authorRes.data);
           setAuthor(authorRes.data);
         }
       } catch (error) {
+        setAuthor({
+          profileUrl: "https://robohash.org/anonymous.png",
+        });
         console.log(error);
       }
     };
@@ -51,6 +136,10 @@ export default function NavBar({ darkMode, setDarkMode }) {
   }, []);
   return (
     <>
+      {alertMessages &&
+        alertMessages.map((alertMessage) => {
+          return <DismissableAlert alertMessage={alertMessage} />;
+        })}
       <Disclosure as="nav" className="sticky top-0 z-10 bg-gray-800">
         {({ open }) => (
           <>
@@ -129,7 +218,6 @@ export default function NavBar({ darkMode, setDarkMode }) {
                     <span className="sr-only">View notifications</span>
                     <BellIcon className="h-6 w-6" aria-hidden="true" />
                   </button>
-
                   <button
                     id="theme-toggle"
                     type="button"
@@ -181,46 +269,14 @@ export default function NavBar({ darkMode, setDarkMode }) {
                       leaveTo="transform opacity-0 scale-95"
                     >
                       <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-700 dark:text-gray-50">
-                        <Menu.Item>
-                          {({ active }) => (
-                            <Link
-                              to={"/users/" + author.username}
-                              className={classNames(
-                                active ? " bg-gray-900 text-gray-50" : "",
-                                "block px-4 py-2 text-sm "
-                              )}
-                            >
-                              Your Profile
-                            </Link>
-                          )}
-                        </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <a
-                              href="#"
-                              className={classNames(
-                                active ? " bg-gray-900 text-gray-50" : "",
-                                "block px-4 py-2 text-sm "
-                              )}
-                            >
-                              Settings
-                            </a>
-                          )}
-                        </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <a
-                              href="#"
-                              onClick={handleLogout}
-                              className={classNames(
-                                active ? "bg-red-600 text-gray-50 " : "",
-                                "block px-4 py-2 text-sm "
-                              )}
-                            >
-                              Sign out
-                            </a>
-                          )}
-                        </Menu.Item>
+                        {localStorage.getItem("bird-person-web.auth.token") ? (
+                          <AuthenticatedUserOptions
+                            author={author}
+                            navigate={navigate}
+                          />
+                        ) : (
+                          <UnAuthenticatedUserOptions navigate={navigate} />
+                        )}
                       </Menu.Items>
                     </Transition>
                   </Menu>

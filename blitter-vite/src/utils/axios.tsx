@@ -1,3 +1,4 @@
+import React from "react";
 import axios from "axios";
 import { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -40,7 +41,7 @@ export function useAxiosNavigation() {
 
 export function AxiosNavigation() {
   useAxiosNavigation();
-  return;
+  return <></>;
 }
 
 export default instance;
