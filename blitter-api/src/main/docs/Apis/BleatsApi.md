@@ -1,6 +1,6 @@
 # BleatsApi
 
-All URIs are relative to *http://localhost:8080/v2*
+All URIs are relative to *http://localhost:8080*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -8,6 +8,7 @@ All URIs are relative to *http://localhost:8080/v2*
 | [**getBleat**](BleatsApi.md#getBleat) | **GET** /bleats/{id} | Get a bleat by id |
 | [**getBleatReplies**](BleatsApi.md#getBleatReplies) | **GET** /bleats/{id}/reply | Get a list of replies to a bleat by id |
 | [**getBleats**](BleatsApi.md#getBleats) | **GET** /bleats | Get a list of bleats |
+| [**getPublicBleats**](BleatsApi.md#getPublicBleats) | **GET** /public | Get a list of public bleats |
 | [**postBleat**](BleatsApi.md#postBleat) | **POST** /bleats | Creates a new bleat |
 | [**replyBleat**](BleatsApi.md#replyBleat) | **POST** /bleats/{id}/reply | Post a reply to a bleat by id |
 | [**updateBleat**](BleatsApi.md#updateBleat) | **PATCH** /bleats/{id} | Update a bleat by id |
@@ -94,9 +95,38 @@ Get a list of replies to a bleat by id
 
 <a name="getBleats"></a>
 # **getBleats**
-> PaginatedBleats getBleats(page, per\_page)
+> PaginatedBleats getBleats(page, per\_page, following\_only)
 
 Get a list of bleats
+
+    Returns a list of bleats with pagination
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **page** | **Integer**| The page number to retrieve (defaults to 1) | [optional] [default to 1] |
+| **per\_page** | **Integer**| The number of items per page to retrieve (defaults to 10) | [optional] [default to 10] |
+| **following\_only** | **Boolean**| Limits bleats to only from users being followed | [optional] [default to false] |
+
+### Return type
+
+[**PaginatedBleats**](../Models/PaginatedBleats.md)
+
+### Authorization
+
+[blitterBearerAuth](../README.md#blitterBearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="getPublicBleats"></a>
+# **getPublicBleats**
+> PaginatedBleats getPublicBleats(page, per\_page)
+
+Get a list of public bleats
 
     Returns a list of bleats with pagination
 

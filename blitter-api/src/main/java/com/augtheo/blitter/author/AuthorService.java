@@ -2,6 +2,7 @@ package com.augtheo.blitter.author;
 
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class AuthorService implements UserDetailsService {
 
   private final AuthorRepository authorRepository;
@@ -49,6 +51,7 @@ public class AuthorService implements UserDetailsService {
   }
 
   public Author getAuthorByUsername(String username) {
+    log.info("username={}", username);
     return authorRepository.findByUsername(username).orElseThrow(AuthorNotFoundException::new);
   }
 

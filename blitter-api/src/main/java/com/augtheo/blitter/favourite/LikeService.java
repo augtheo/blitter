@@ -38,11 +38,30 @@ public class LikeService {
         .isPresent();
   }
 
-  // TODO: Implememt these
+  private Optional<Favourite> getLikeIfExists(Long bleatId, Long authorId) {
+    return likeRepository.findByBleatAndAuthor(
+        bleatRepository.getReferenceById(bleatId), authorRepository.getReferenceById(authorId));
+  }
 
-  public void addLike(Long bleatId, Long authorId) {}
+  public void addLike(Long bleatId, Long authorId) {
+    Optional<Favourite> optionalFavourite = getLikeIfExists(bleatId, authorId);
+    Bleat bleat = bleatRepository.getReferenceById(bleatId);
+    if (optionalFavourite.isEmpty()) {
+      bleat.setLikeCount(bleat.getLikeCount() + 1);
+      bleatRepository.save(bleat);
+      likeRepository.deleteById(optionalFavourite.get().getId());
+    }
+  }
 
-  public void removeLike(Long bleatId, Long authorId) {}
+  public void removeLike(Long bleatId, Long authorId) {
+    Optional<Favourite> optionalFavourite = getLikeIfExists(bleatId, authorId);
+    Bleat bleat = bleatRepository.getReferenceById(bleatId);
+    if (optionalFavourite.isPresent()) {
+      bleat.setLikeCount(bleat.getLikeCount() - 1);
+      bleatRepository.save(bleat);
+      likeRepository.deleteById(optionalFavourite.get().getId());
+    }
+  }
 
   public Pair<Integer, Boolean> toggleLike(Long bleatId, Long authorId) {
 
@@ -52,11 +71,11 @@ public class LikeService {
     Bleat bleat = bleatRepository.getReferenceById(bleatId);
 
     if (optionalFavourite.isPresent()) {
-      // bleat.setLikeCount(bleat.getLikeCount() - 1);
+      bleat.setLikeCount(bleat.getLikeCount() - 1);
       bleatRepository.save(bleat);
       likeRepository.deleteById(optionalFavourite.get().getId());
     } else {
-      // bleat.setLikeCount(bleat.getLikeCount() + 1);
+      bleat.setLikeCount(bleat.getLikeCount() + 1);
       bleatRepository.save(bleat);
       likeRepository.save(new Favourite(bleat, authorRepository.getReferenceById(authorId)));
     }

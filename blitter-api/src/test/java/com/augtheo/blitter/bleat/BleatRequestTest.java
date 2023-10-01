@@ -68,7 +68,7 @@ public class BleatRequestTest {
 
     // mock
     when(mockAuthorService.getAuthorByUsername(USERNAME)).thenReturn(author);
-    when(mockBleatService.getBleats(any(), any(), any())).thenReturn(mock(Page.class));
+    when(mockBleatService.getBleats(any(), any())).thenReturn(mock(Page.class));
 
     mockMvc.perform(get("/bleats")).andExpect(status().isOk());
   }

@@ -26,13 +26,22 @@ public class BleatService {
     this.authorService = authorService;
   }
 
-  public Page<Bleat> getBleats(Integer page, Integer perPage, Optional<Author> currentAuthor) {
+  public Page<Bleat> getBleatsFromFollowing(
+      Integer page, Integer perPage, Optional<Author> currentAuthor) {
     Pageable pageable = PageRequest.of(page, perPage);
-    if (currentAuthor.isEmpty())
-      return bleatRepository.findAllByOrderByLastModifiedDateDesc(pageable);
-    else
+
+    if (currentAuthor.isPresent()) {
+      log.info("current author is present : {}", currentAuthor.get());
       return bleatRepository.findBleatByAuthorInOrderByLastModifiedDateDesc(
           pageable, currentAuthor.get().getFollowing());
+    } else {
+      log.info("current author is  not present ");
+      return Page.empty();
+    }
+  }
+
+  public Page<Bleat> getBleats(Integer page, Integer perPage) {
+    return bleatRepository.findAllByOrderByLastModifiedDateDesc(PageRequest.of(page, perPage));
   }
 
   public Bleat postBleat(Bleat bleat) {

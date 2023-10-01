@@ -9,14 +9,19 @@ import com.augtheo.blitter.model.AuthorRes;
 import com.augtheo.blitter.model.BleatRes;
 import com.augtheo.blitter.model.RegisterReq;
 import java.util.List;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 public class AuthorController implements UsersApi, RegisterApi {
 
   private final AuthorService authorService;
@@ -84,14 +89,6 @@ public class AuthorController implements UsersApi, RegisterApi {
   }
 
   @Override
-  public ResponseEntity<List<BleatRes>> usersUsernameBleatsGet(String username) {
-    return ResponseEntity.ok(
-        bleatRepository.findAllByAuthor(authorService.getAuthorByUsername(username)).stream()
-            .map(this::domainModelConverter)
-            .toList());
-  }
-
-  @Override
   public ResponseEntity<Void> unfollowUser(String username) {
     Author followee = authorService.getAuthorByUsername(username);
     Author follower = getCurrentLoggedInAuthor();
@@ -99,31 +96,41 @@ public class AuthorController implements UsersApi, RegisterApi {
     return ResponseEntity.ok().build();
   }
 
-  @Override
-  public ResponseEntity<List<BleatRes>> usersUsernameLikedGet(String username) {
-    return ResponseEntity.ok(
-        likeService.getLikedBleats(authorService.getAuthorByUsername(username)).stream()
-            .map(this::domainModelConverter)
-            .toList());
-  }
+  // private Author getCurrentAuthor() {
+  //   Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+  //   Author currentAuthor = authorService.getAuthorByUsername(auth.getName());
+  //   return currentAuthor;
+  // }
 
-  private Author getCurrentAuthor() {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Author currentAuthor = authorService.getAuthorByUsername(auth.getName());
-    return currentAuthor;
+  private Optional<Author> getCurrentAuthor() {
+    // FIXME: Currently using two separate paths
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    log.info("authentication = {} ", authentication);
+    if (authentication instanceof AnonymousAuthenticationToken) {
+      log.info("anonymousAuthentication = {} ", authentication.getClass());
+      return Optional.empty();
+    } else if (authentication instanceof Jwt) {
+      Jwt token = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+      log.info("jwt = {} ", token);
+      return authorService.getOptionalAuthorByUsername(token.getSubject());
+    } else {
+      return authorService.getOptionalAuthorByUsername(authentication.getName());
+    }
   }
 
   private AuthorRes domainModelConverter(Author author) {
 
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    Author currentAuthor = authorService.getAuthorByUsername(auth.getName());
+    // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Optional<Author> currentAuthor = getCurrentAuthor();
 
     return AuthorRes.builder()
         .id(author.getId())
         .name(author.getName())
         .username(author.getUsername())
-        .following(currentAuthor.getFollowing().contains(author))
-        .follows(currentAuthor.getFollowers().contains(author))
+        .following(
+            currentAuthor.map(cAuthor -> cAuthor.getFollowing().contains(author)).orElse(false))
+        .follows(
+            currentAuthor.map(cAuthor -> cAuthor.getFollowers().contains(author)).orElse(false))
         .followers(author.getFollowers().size())
         .followees(author.getFollowing().size())
         .profileUrl(author.getProfilePictureUri())
@@ -131,6 +138,7 @@ public class AuthorController implements UsersApi, RegisterApi {
   }
 
   private BleatRes domainModelConverter(Bleat bleat) {
+    Optional<Author> currentAuthor = getCurrentAuthor();
     return BleatRes.builder()
         .message(bleat.getMessage())
         .authorUsername(bleat.getAuthor().getUsername())
@@ -141,8 +149,27 @@ public class AuthorController implements UsersApi, RegisterApi {
         .likeCount(bleat.getLikeCount())
         .replyCount(bleat.getReplyCount())
         .authorProfileUrl(bleat.getAuthor().getProfilePictureUri())
-        .authorLiked(likeService.hasLiked(bleat.getId(), getCurrentAuthor().getId()))
+        .authorLiked(
+            currentAuthor.isPresent()
+                ? likeService.hasLiked(bleat.getId(), currentAuthor.get().getId())
+                : false)
         .build();
+  }
+
+  @Override
+  public ResponseEntity<List<BleatRes>> getBleatsByAuthor(String username) {
+    return ResponseEntity.ok(
+        bleatRepository.findAllByAuthor(authorService.getAuthorByUsername(username)).stream()
+            .map(this::domainModelConverter)
+            .toList());
+  }
+
+  @Override
+  public ResponseEntity<List<BleatRes>> getBleatsLikedByAuthor(String username) {
+    return ResponseEntity.ok(
+        likeService.getLikedBleats(authorService.getAuthorByUsername(username)).stream()
+            .map(this::domainModelConverter)
+            .toList());
   }
 
   // private Author getCurrentAuthor() {

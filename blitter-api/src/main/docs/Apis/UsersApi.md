@@ -1,17 +1,17 @@
 # UsersApi
 
-All URIs are relative to *http://localhost:8080/v2*
+All URIs are relative to *http://localhost:8080*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**createUser**](UsersApi.md#createUser) | **POST** /register | Creates a new user |
 | [**followUser**](UsersApi.md#followUser) | **POST** /users/{username}/follow | Follow a user |
 | [**getAuthor**](UsersApi.md#getAuthor) | **GET** /users/{username} |  |
+| [**getBleatsByAuthor**](UsersApi.md#getBleatsByAuthor) | **GET** /users/{username}/bleats | Get a list of bleats posted by user |
+| [**getBleatsLikedByAuthor**](UsersApi.md#getBleatsLikedByAuthor) | **GET** /users/{username}/liked | Get a list of bleats liked by user |
 | [**getFollowingUsers**](UsersApi.md#getFollowingUsers) | **GET** /users/{username}/following | Get list of users the user is following |
 | [**getSelf**](UsersApi.md#getSelf) | **GET** /users |  |
 | [**unfollowUser**](UsersApi.md#unfollowUser) | **POST** /users/{username}/unfollow | Unfollow a user |
-| [**usersUsernameBleatsGet**](UsersApi.md#usersUsernameBleatsGet) | **GET** /users/{username}/bleats | Get a list of bleats posted by user |
-| [**usersUsernameLikedGet**](UsersApi.md#usersUsernameLikedGet) | **GET** /users/{username}/liked | Get a list of bleats liked by user |
 
 
 <a name="createUser"></a>
@@ -81,6 +81,58 @@ null (empty response body)
 ### Return type
 
 [**AuthorRes**](../Models/AuthorRes.md)
+
+### Authorization
+
+[blitterBearerAuth](../README.md#blitterBearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="getBleatsByAuthor"></a>
+# **getBleatsByAuthor**
+> List getBleatsByAuthor(username)
+
+Get a list of bleats posted by user
+
+    returns the list of  bleats by the author
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **username** | **String**|  | [default to null] |
+
+### Return type
+
+[**List**](../Models/BleatRes.md)
+
+### Authorization
+
+[blitterBearerAuth](../README.md#blitterBearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+<a name="getBleatsLikedByAuthor"></a>
+# **getBleatsLikedByAuthor**
+> List getBleatsLikedByAuthor(username)
+
+Get a list of bleats liked by user
+
+### Parameters
+
+|Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **username** | **String**|  | [default to null] |
+
+### Return type
+
+[**List**](../Models/BleatRes.md)
 
 ### Authorization
 
@@ -164,56 +216,4 @@ null (empty response body)
 
 - **Content-Type**: Not defined
 - **Accept**: Not defined
-
-<a name="usersUsernameBleatsGet"></a>
-# **usersUsernameBleatsGet**
-> List usersUsernameBleatsGet(username)
-
-Get a list of bleats posted by user
-
-    returns the list of  bleats by the author
-
-### Parameters
-
-|Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **username** | **String**|  | [default to null] |
-
-### Return type
-
-[**List**](../Models/BleatRes.md)
-
-### Authorization
-
-[blitterBearerAuth](../README.md#blitterBearerAuth)
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: application/json
-
-<a name="usersUsernameLikedGet"></a>
-# **usersUsernameLikedGet**
-> List usersUsernameLikedGet(username)
-
-Get a list of bleats liked by user
-
-### Parameters
-
-|Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **username** | **String**|  | [default to null] |
-
-### Return type
-
-[**List**](../Models/BleatRes.md)
-
-### Authorization
-
-[blitterBearerAuth](../README.md#blitterBearerAuth)
-
-### HTTP request headers
-
-- **Content-Type**: Not defined
-- **Accept**: application/json
 

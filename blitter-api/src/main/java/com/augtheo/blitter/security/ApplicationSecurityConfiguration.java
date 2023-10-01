@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,7 +26,6 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -43,12 +43,12 @@ public class ApplicationSecurityConfiguration {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http.cors(Customizer.withDefaults())
+        .anonymous()
+        .and()
         .authorizeHttpRequests(
             authorize ->
                 authorize
-                    .requestMatchers(
-                        new RegexRequestMatcher(
-                            "\\/bleats.*", "GET")) // TODO: match /bleats?page=10&per_page=100
+                    .requestMatchers(HttpMethod.GET, "/bleats/**", "/users/**")
                     .permitAll()
                     .requestMatchers(
                         "/register", "/actuator") // FIXME: actuator should not be exposed outside
@@ -94,8 +94,7 @@ public class ApplicationSecurityConfiguration {
 
   @Bean
   public JwtEncoder jwtEncoder() {
-    return Optional.ofNullable(this.publicKey)
-        .map(publicKey -> new RSAKey.Builder(publicKey).privateKey(this.privateKey).build())
+    return Optional.ofNullable(new RSAKey.Builder(publicKey).privateKey(this.privateKey).build())
         .map(jwk -> new ImmutableJWKSet<>(new JWKSet(jwk)))
         .map(NimbusJwtEncoder::new)
         .orElseThrow(() -> new IllegalStateException("Public key cannot be null"));

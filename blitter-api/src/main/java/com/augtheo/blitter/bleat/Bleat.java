@@ -49,25 +49,22 @@ public class Bleat {
 
   @LastModifiedDate private LocalDateTime lastModifiedDate;
 
-  /*
-  TODO: May need a separate Replies table
-   */
   @ManyToOne(fetch = FetchType.LAZY)
   private Bleat parent;
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "parent")
   @LazyCollection(LazyCollectionOption.EXTRA)
+  @Builder.Default
   private Set<Bleat> children = new HashSet<>();
 
   @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "bleat")
   @LazyCollection(LazyCollectionOption.EXTRA)
-  private Set<Favourite> favourites;
+  @Builder.Default
+  private Set<Favourite> favourites = new HashSet<>();
 
-  // TODO: make it transient
-  @Transient private int likeCount = 0;
+  @Transient @Builder.Default private int likeCount = 0;
 
-  // TODO: make it transient
-  @Transient private int replyCount = 0;
+  @Transient @Builder.Default private int replyCount = 0;
 
   @PostLoad
   private void loadTransients() {
@@ -82,7 +79,5 @@ public class Bleat {
   public Bleat(String message, Author author) {
     this.message = message;
     this.author = author;
-    this.favourites = new HashSet<>();
-    // this.likeCount = 0;
   }
 }

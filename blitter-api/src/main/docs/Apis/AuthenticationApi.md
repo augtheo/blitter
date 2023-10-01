@@ -1,6 +1,6 @@
 # AuthenticationApi
 
-All URIs are relative to *http://localhost:8080/v2*
+All URIs are relative to *http://localhost:8080*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|

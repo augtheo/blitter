@@ -8,5 +8,4 @@ Models/BleatRes.md
 Models/PaginatedBleats.md
 Models/RegisterReq.md
 Models/_auth_post_200_response.md
-Models/toggleLikeBleat_200_response.md
 README.md

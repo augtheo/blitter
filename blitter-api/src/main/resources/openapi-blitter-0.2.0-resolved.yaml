@@ -4,7 +4,7 @@ info:
   description: A RESTful API for blitter, a twitter clone
   version: 0.3.0
 servers:
-  - url: http://localhost:8080/v2
+  - url: http://localhost:8080/
 tags:
   - name: Bleats
     description: Operations related to bleats
@@ -28,6 +28,33 @@ paths:
                     type: string
       security:
         - blitterBasicAuth: []
+  /public:
+    get:
+      tags:
+        - Bleats
+      summary: Get a list of public bleats
+      description: Returns a list of bleats with pagination
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: The page number to retrieve (defaults to 1)
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 10
+          description: The number of items per page to retrieve (defaults to 10)
+      operationId: getPublicBleats
+      responses:
+        "200":
+          description: A list of bleats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedBleats"
   /bleats:
     get:
       tags:
@@ -47,6 +74,12 @@ paths:
             type: integer
             default: 10
           description: The number of items per page to retrieve (defaults to 10)
+        - in: query
+          name: following_only
+          schema:
+            type: boolean
+            default: false
+          description: Limits bleats to only from users being followed
       operationId: getBleats
       responses:
         "200":
@@ -55,8 +88,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PaginatedBleats"
-        "500":
-          description: Internal server error
     post:
       tags:
         - Bleats
@@ -75,10 +106,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BleatRes"
-        "400":
-          description: Bad request
-        "500":
-          description: Internal server error
   /bleats/{id}:
     get:
       tags:
@@ -102,7 +129,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BleatRes"
-    patch:
+    patch: #TODO: Check if patch works as expected
       summary: Update a bleat by id
       tags:
         - Bleats
@@ -149,6 +176,7 @@ paths:
       tags:
         - Favourite
       summary: Toggle the like for a bleat by id
+      deprecated: true
       operationId: toggleLikeBleat
       parameters:
         - name: id
@@ -162,14 +190,42 @@ paths:
       responses:
         "200":
           description: Successfully toggled like
-          content:
-            application/json:
-              schema:
-                properties:
-                  likeCount:
-                    type: integer
-                  authorLiked:
-                    type: boolean
+  /bleats/{id}/like:
+    post:
+      tags:
+        - Favourite
+      summary: Like bleat by id
+      operationId: likeBleat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successfully liked
+  /bleats/{id}/unlike:
+    post:
+      tags:
+        - Favourite
+      summary: Unlike a bleat by id
+      operationId: unlikeBleat
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Successfully unliked
   /bleats/{id}/reply:
     get:
       tags:
@@ -214,8 +270,8 @@ paths:
             schema:
               $ref: "#/components/schemas/BleatReq"
       responses:
-        "200":
-          description: Return bleat
+        "201":
+          description: Reply was created
           content:
             application/json:
               schema:
@@ -277,6 +333,7 @@ paths:
         - Users
       summary: Get a list of bleats posted by user
       description: returns the list of  bleats by the author
+      operationId: getBleatsByAuthor
       parameters:
         - name: username
           in: path
@@ -297,6 +354,7 @@ paths:
       tags:
         - Users
       summary: Get a list of bleats liked by user
+      operationId: getBleatsLikedByAuthor
       parameters:
         - name: username
           in: path
@@ -327,8 +385,6 @@ paths:
       responses:
         "200":
           description: Successfully followed
-        "404":
-          description: User not found
   /users/{username}/unfollow:
     post:
       tags:
@@ -344,8 +400,6 @@ paths:
       responses:
         "200":
           description: Successfully unfollowed
-        "404":
-          description: User not found
   /users/{username}/following:
     get:
       tags:
@@ -367,8 +421,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/AuthorRes"
-        "404":
-          description: User not found
 components:
   securitySchemes:
     blitterBasicAuth:
