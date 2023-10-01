@@ -9,11 +9,8 @@ import { useEffect } from "react";
 import axios from "./utils/axios";
 
 import DismissableAlert from "./alerts";
-const navigation = [
-  { name: "Home", href: "#", current: true },
-  { name: "Trending", href: "#", current: false },
-  { name: "Chat", href: "#", current: false },
-];
+import { UsersApi } from "./generated-sources/openapi";
+import { getApiConfigurationFactory } from "./api/FactoryProvider";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -22,7 +19,7 @@ function classNames(...classes) {
 function AuthenticatedUserOptions({ author, navigate }) {
   function handleLogout(event) {
     event.preventDefault();
-    localStorage.removeItem("bird-person-web.auth.token");
+    localStorage.removeItem("blitter.auth.token");
     // setAlertMessages([]);
     navigate("/login");
   }
@@ -75,7 +72,7 @@ function AuthenticatedUserOptions({ author, navigate }) {
 function UnAuthenticatedUserOptions({ navigate }) {
   function handleLogout(event) {
     event.preventDefault();
-    localStorage.removeItem("bird-person-web.auth.token");
+    localStorage.removeItem("blitter.auth.token");
     // setAlertMessages([]);
     navigate("/login");
   }
@@ -103,26 +100,21 @@ export default function NavBar({
   darkMode,
   setDarkMode,
 }) {
+  const [currentNav, setCurrentNav] = useState("Home");
+  const navigation = [
+    { name: "Home", href: "/home", current: currentNav === "Home" },
+    { name: "Feed", href: "/feed", current: currentNav === "Feed" },
+  ];
   const [author, setAuthor] = useState({});
   const navigate = useNavigate();
-  let headers = {
-    "Content-Type": "application/json",
-  };
-
-  if (localStorage.getItem("bird-person-web.auth.token")) {
-    headers["Authorization"] =
-      "Bearer " + localStorage.getItem("bird-person-web.auth.token");
-  }
+  const configuration = getApiConfigurationFactory();
+  const usersApi: UsersApi = new UsersApi(configuration);
 
   useEffect(() => {
     const f = async () => {
       try {
-        if (localStorage.getItem("bird-person-web.auth.token") != null) {
-          const authorRes = await axios({
-            method: "get",
-            url: "/users",
-            headers: headers,
-          });
+        const authorRes = await usersApi.getSelf();
+        if (authorRes.status === 200) {
           setAuthor(authorRes.data);
         }
       } catch (error) {
@@ -140,10 +132,13 @@ export default function NavBar({
         alertMessages.map((alertMessage) => {
           return <DismissableAlert alertMessage={alertMessage} />;
         })}
-      <Disclosure as="nav" className="sticky top-0 z-10 bg-gray-800">
+      <Disclosure
+        as="div"
+        className="top-0 z-10 bg-gray-800 fixed top-0 left-0 right-0 z-10"
+      >
         {({ open }) => (
           <>
-            <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+            <div className="px-2 sm:px-6 lg:px-8">
               <div className="relative flex h-16 items-center justify-between">
                 <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                   {/* Mobile menu button*/}
@@ -168,9 +163,12 @@ export default function NavBar({
                   <div className="hidden sm:ml-6 sm:block">
                     <div className="flex space-x-4">
                       {navigation.map((item) => (
-                        <a
+                        <button
                           key={item.name}
-                          href={item.href}
+                          onClick={(event) => {
+                            navigate(item.href);
+                            setCurrentNav(item.name);
+                          }}
                           className={classNames(
                             item.current
                               ? "bg-gray-900 text-white"
@@ -180,7 +178,7 @@ export default function NavBar({
                           aria-current={item.current ? "page" : undefined}
                         >
                           {item.name}
-                        </a>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -211,22 +209,27 @@ export default function NavBar({
                 </div>
 
                 <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                  <button
-                    type="button"
-                    className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                  >
-                    <span className="sr-only">View notifications</span>
-                    <BellIcon className="h-6 w-6" aria-hidden="true" />
-                  </button>
+                  {/* <button */}
+                  {/*   type="button" */}
+                  {/*   className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" */}
+                  {/* > */}
+                  {/*   <span className="sr-only">View notifications</span> */}
+                  {/*   <BellIcon className="h-6 w-6" aria-hidden="true" /> */}
+                  {/* </button> */}
                   <button
                     id="theme-toggle"
                     type="button"
-                    className="rounded-lg p-2.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
-                    onClick={() => setDarkMode(!darkMode)}
+                    className="rounded-lg p-2.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700"
+                    onClick={() =>
+                      setDarkMode(darkMode === "true" ? "false" : "true")
+                    }
                   >
+                    {" "}
                     <svg
                       id="theme-toggle-dark-icon"
-                      className={darkMode ? "h-5 w-5" : "hidden h-5 w-5"}
+                      className={
+                        darkMode === "true" ? "h-5 w-5" : "hidden h-5 w-5"
+                      }
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       xmlns="http://www.w3.org/2000/svg"
@@ -235,7 +238,9 @@ export default function NavBar({
                     </svg>
                     <svg
                       id="theme-toggle-light-icon"
-                      className={darkMode ? "hidden h-5 w-5" : "h-5 w-5"}
+                      className={
+                        darkMode === "true" ? "hidden h-5 w-5" : "h-5 w-5"
+                      }
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       xmlns="http://www.w3.org/2000/svg"
@@ -269,7 +274,7 @@ export default function NavBar({
                       leaveTo="transform opacity-0 scale-95"
                     >
                       <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:bg-gray-700 dark:text-gray-50">
-                        {localStorage.getItem("bird-person-web.auth.token") ? (
+                        {localStorage.getItem("blitter.auth.token") ? (
                           <AuthenticatedUserOptions
                             author={author}
                             navigate={navigate}
@@ -307,7 +312,6 @@ export default function NavBar({
           </>
         )}
       </Disclosure>
-      <Outlet className="flex min-h-screen grow flex-col" />
     </>
   );
 }

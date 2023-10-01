@@ -26,11 +26,13 @@ function BleatImage({ bleato }) {
   }
 }
 
-export default function BleatCard({ bleat, setBleats, isBleatView }) {
+export default function BleatCard({ bleat, setBleats }) {
   const getHumanReadableDate = (date) => {
     const _date = new Date(date);
     return _date.toDateString();
   };
+
+  // console.log(bleat);
 
   const navigate = useNavigate();
   const [replyCount, setReplyCount] = useState(bleat.replyCount);
@@ -41,28 +43,33 @@ export default function BleatCard({ bleat, setBleats, isBleatView }) {
 
   const handleDelete = async (event) => {
     try {
-      event.preventDefault();
+      event.stopPropagation();
       const response = await axios({
         method: "delete",
         url: "/bleats/" + bleat.id,
         headers: {
           "Content-Type": "application/json",
-          Authorization:
-            "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
+          Authorization: "Bearer " + localStorage.getItem("blitter.auth.token"),
         },
       });
       setBleats((prevBleats) => prevBleats.filter((bl) => bl.id !== bleat.id));
-      if (isBleatView) navigate("/home");
+      navigate("/home");
     } catch (error) {
       console.log(error);
     }
   };
 
   const handleEdit = async (event) => {
+    event.stopPropagation();
     setEditMode(!editMode);
   };
   const toggleComment = async (event) => {
+    event.stopPropagation();
     setCommentMode(!commentMode);
+  };
+
+  const handleBleatClick = async (event) => {
+    navigate(`/bleat/${bleat.id}`);
   };
 
   function BleatView() {
@@ -93,7 +100,7 @@ export default function BleatCard({ bleat, setBleats, isBleatView }) {
           headers: {
             "Content-Type": "application/json",
             Authorization:
-              "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
+              "Bearer " + localStorage.getItem("blitter.auth.token"),
           },
           data: {
             message: formJson.editContents,
@@ -191,7 +198,7 @@ export default function BleatCard({ bleat, setBleats, isBleatView }) {
           headers: {
             "Content-Type": "application/json",
             Authorization:
-              "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
+              "Bearer " + localStorage.getItem("blitter.auth.token"),
           },
           data: {
             message: formJson.replyContents,
@@ -210,7 +217,11 @@ export default function BleatCard({ bleat, setBleats, isBleatView }) {
     };
 
     return (
-      <form className="mb-6" onSubmit={postComment}>
+      <form
+        onClick={(event) => event.stopPropagation()}
+        className="mb-6"
+        onSubmit={postComment}
+      >
         <div className="py-2 px-4 mb-4 bg-white rounded-lg rounded-t-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
           <label htmlFor="replyContents" className="sr-only">
             Your comment
@@ -242,13 +253,18 @@ export default function BleatCard({ bleat, setBleats, isBleatView }) {
   function InfoView() {
     return (
       <div className="mt-3 flex text-gray-500 dark:text-gray-400">
-        <button className="mr-6 flex items-center " onClick={toggleLike}>
+        <button
+          className={`mr-6 flex items-center hover:fill-red-700 hover:stroke-red-700 hover:text-red-700  ${
+            authorLiked ? "text-red-700" : ""
+          }`}
+          onClick={toggleLike}
+        >
           <HeartIcon
-            className={`h-5 w-5 hover:fill-red-700 hover:stroke-red-700 ${
+            className={`h-5 w-5  ${
               authorLiked ? "fill-red-700 stroke-red-700" : ""
-            } `}
+            }`}
           />
-          <span className="ml-3">{likeCount}</span>
+          <span className={`ml-3`}>{likeCount}</span>
         </button>
         <button
           className="mr-6 flex items-center dark:hover:bg-gray-700 rounded-lg p-1.5"
@@ -257,30 +273,20 @@ export default function BleatCard({ bleat, setBleats, isBleatView }) {
           <ChatBubbleLeftIcon className="h-5 w-5" />
           <span className="ml-3">{replyCount} Comments</span>
         </button>
-        {isBleatView ? (
-          <></>
-        ) : (
-          <Link to={`/bleat/${bleat.id}`}>
-            <button className="mr-6 flex items-center dark:hover:bg-gray-700 rounded-lg p-1.5">
-              <ArrowTopRightOnSquareIcon className="h-5 w-5" />
-            </button>
-          </Link>
-        )}
       </div>
     );
   }
 
   const toggleLike = async (event) => {
     try {
-      event.preventDefault();
+      event.stopPropagation();
       setAuthorLiked(!authorLiked);
       const response = await axios({
         method: "post",
         url: "/bleats/" + bleat.id + "/toggleLike",
         headers: {
           "Content-Type": "application/json",
-          Authorization:
-            "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
+          Authorization: "Bearer " + localStorage.getItem("blitter.auth.token"),
         },
       });
       setLikeCount(response.data.likeCount);
@@ -288,9 +294,14 @@ export default function BleatCard({ bleat, setBleats, isBleatView }) {
       console.log(error);
     }
   };
+
   return (
-    <div className=" items-center justify-center bg-gray-50 p-4 dark:bg-black">
-      <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-800">
+    <div
+      className="cursor-pointer items-center justify-center p-4 "
+      // "transition-transform transition-shadow ease-in-out duration-300 transform hover:scale-105 hover:shadow-lg"
+      onClick={handleBleatClick}
+    >
+      <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-800">
         <div className="flex justify-between">
           <div className="flex items-center">
             <img
@@ -301,16 +312,24 @@ export default function BleatCard({ bleat, setBleats, isBleatView }) {
               <span className="block font-bold text-black dark:text-white ">
                 {bleat.author_name}
               </span>
-              <Link to={`/users/${bleat.author_username}`}>
+              <div
+                onClick={(event) => {
+                  event.stopPropagation();
+                  navigate(`/users/${bleat.author_username}`);
+                }}
+              >
                 <span className="block font-normal text-gray-500 dark:text-gray-400 hover:underline ">
                   @{bleat.author_username}
                 </span>
-              </Link>
+              </div>
             </div>
           </div>
           <div className="flex justify-end px-4 pt-4">
             <Menu as="div" className="relative ml-3">
-              <Menu.Button className="inline-block rounded-lg p-1.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700">
+              <Menu.Button
+                className="inline-block rounded-lg p-1.5 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
+                onClick={(event) => event.stopPropagation()}
+              >
                 <span className="sr-only">Open dropdown</span>
                 <svg
                   className="h-6 w-6"
@@ -358,25 +377,12 @@ export default function BleatCard({ bleat, setBleats, isBleatView }) {
                       </div>
                     )}
                   </Menu.Item>
-                  <Menu.Item disabled>
-                    {({ active }) => (
-                      <div
-                        className={classNames(
-                          "block px-4 py-2 text-sm",
-                          active ? " bg-gray-400 text-gray-700" : ""
-                        )}
-                      >
-                        Coming Soon
-                      </div>
-                    )}
-                  </Menu.Item>
                 </Menu.Items>
               </Transition>
             </Menu>
           </div>
         </div>
         {editMode ? <EditView /> : <BleatView />}
-        <div className="my-1 border border-b-0 border-gray-200 dark:border-gray-600"></div>
         {commentMode ? <CommentView /> : <InfoView />}
       </div>
     </div>

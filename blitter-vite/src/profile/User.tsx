@@ -4,6 +4,9 @@ import BleatCard from "../bleat/BleatCard";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { BleatRes, BleatsApi, UsersApi } from "../generated-sources/openapi";
+import JwtAuthApiConfigurationFactory from "../api/JwtAuthApiConfigurationFactory";
+import { getApiConfigurationFactory } from "../api/FactoryProvider";
 
 function Follow({ author }) {
   const [isFollowing, setIsFollowing] = useState(author.following);
@@ -18,7 +21,7 @@ function Follow({ author }) {
           headers: {
             "Content-Type": "application/json",
             Authorization:
-              "Bearer " + localStorage.getItem("bird-person-web.auth.token"),
+              "Bearer " + localStorage.getItem("blitter.auth.token"),
           },
         });
         setIsFollowing((isFollowing) => !isFollowing);
@@ -55,7 +58,7 @@ function Follow({ author }) {
 
 function UserCard({ author, setAuthor }) {
   return (
-    <div className="flex grow flex-col bg-gray-50 p-4 dark:bg-black">
+    <div className="flex grow flex-col p-4">
       <div className=" items-center justify-center ">
         <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-800">
           <div className="flex justify-between">
@@ -81,34 +84,22 @@ function UserCard({ author, setAuthor }) {
 export default function User() {
   const { id } = useParams();
   const [author, setAuthor] = useState({});
-  const [bleatsByAuthor, setBleatsByAuthor] = useState([]);
-  let headers = {
-    "Content-Type": "application/json",
-  };
-
-  if (localStorage.getItem("bird-person-web.auth.token")) {
-    headers["Authorization"] =
-      "Bearer " + localStorage.getItem("bird-person-web.auth.token");
-  }
-
+  const [bleatsByAuthor, setBleatsByAuthor] = useState<BleatRes[]>([]);
+  const usersApi: UsersApi = new UsersApi(getApiConfigurationFactory());
+  const bleatsApiAuth: BleatsApi = new BleatsApi(getApiConfigurationFactory());
   useEffect(() => {
     window.scrollTo(0, 0);
     const f = async () => {
       try {
-        const authorRes = await axios({
-          method: "get",
-          url: "/users/" + id,
-          headers: headers,
-        });
-
-        const bleatsByUser = await axios({
-          method: "get",
-          url: "/users/" + id + "/bleats",
-          headers: headers,
-        });
-
-        setAuthor(authorRes.data);
-        setBleatsByAuthor(bleatsByUser.data);
+        console.log(id);
+        if (id != undefined) {
+          const authorRes = await usersApi.getAuthor(id);
+          const bleatsByUser = await usersApi.getBleatsByAuthor(id);
+          console.log(authorRes);
+          console.log(bleatsByUser);
+          setAuthor(authorRes.data);
+          setBleatsByAuthor(bleatsByUser.data);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -117,13 +108,12 @@ export default function User() {
   }, [id]);
   return (
     bleatsByAuthor && (
-      <div className="min-h-screen  grow bg-gray-50 dark:bg-black">
+      <div className="min-h-screen  grow ">
         <UserCard author={author} setAuthor={setAuthor} key={author.id} />
         <hr className="mx-auto my-4 h-1 w-48 rounded border-0 bg-gray-100 dark:bg-gray-700 md:my-10" />
         <div>
           {bleatsByAuthor.map((bleat) => (
             <BleatCard
-              isBleatView={false}
               bleat={bleat}
               key={bleat.id}
               setBleats={setBleatsByAuthor}

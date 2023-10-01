@@ -2,59 +2,60 @@ import React from "react";
 import axios from "../utils/axios";
 import BleatCard from "./BleatCard";
 import { useEffect } from "react";
+import { BleatsApi } from "../generated-sources/openapi";
+import JwtAuthApiConfigurationFactory from "../api/JwtAuthApiConfigurationFactory";
+import NoAuthApiConfigurationFactory from "../api/NoAuthApiFactory";
+import { getApiConfigurationFactory } from "../api/FactoryProvider";
 
 export default function BleatList({
-  // authRequired,
+  followingOnly,
   bleats,
   setBleats,
   currentPage,
   setTotalResults,
   setTotalPages,
 }) {
-  const reqUrl = "/bleats";
-  let headers = {
-    "Content-Type": "application/json",
-  };
-
-  if (localStorage.getItem("bird-person-web.auth.token")) {
-    headers["Authorization"] =
-      "Bearer " + localStorage.getItem("bird-person-web.auth.token");
-  }
+  const configuration = getApiConfigurationFactory();
+  console.log(configuration);
+  const bleatsApiAuth: BleatsApi = new BleatsApi(
+    configuration
+    // new JwtAuthApiConfigurationFactory().createApiConfiguration()
+  );
+  console.log(bleatsApiAuth);
 
   useEffect(() => {
-    const f = async () => {
+    (async () => {
       try {
-        const response = await axios({
-          method: "get",
-          url: reqUrl,
-          params: {
-            page: currentPage - 1,
-            per_page: 10,
-          },
-          headers: headers,
-        });
-        // console.log(currentPage);
-        setTotalResults(response.data.total_bleats);
-        setTotalPages(response.data.total_pages);
-        setBleats(response.data.bleats);
+        var response;
+        // if (configuration instanceof JwtAuthApiConfigurationFactory) {
+        response = await bleatsApiAuth.getBleats(
+          currentPage - 1,
+          10,
+          followingOnly
+        );
+        // } else {
+        //   response = await bleatsApiAuth.getPublicBleats(currentPage - 1, 10);
+        // }
+
+        if (response.status === 200) {
+          setTotalResults(response.data.total_bleats);
+          setTotalPages(response.data.total_pages);
+          setBleats(response.data.bleats);
+        }
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching data:", error);
       }
-    };
-    f();
-  }, [currentPage]);
+    })();
+  }, [currentPage, followingOnly]);
 
   return (
-    bleats &&
-    bleats.map((bleat) => {
-      return (
-        <BleatCard
-          bleat={bleat}
-          key={bleat.id}
-          setBleats={setBleats}
-          isBleatView={false}
-        />
-      );
-    })
+    <>
+      {bleats &&
+        bleats.map((bleat) => {
+          return (
+            <BleatCard bleat={bleat} key={bleat.id} setBleats={setBleats} />
+          );
+        })}
+    </>
   );
 }

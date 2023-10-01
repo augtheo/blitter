@@ -7,7 +7,7 @@ import { classNames } from "./utils/utils";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import { useNavigate } from "react-router-dom";
 
-function Page({ val, pos, target, active, setCurrentPage }) {
+function Page({ val, pos, target, active, setCurrentPage, route }) {
   const navigate = useNavigate();
 
   //TODO: Highlight active page differently
@@ -21,7 +21,7 @@ function Page({ val, pos, target, active, setCurrentPage }) {
       )}
       onClick={() => {
         setCurrentPage(target);
-        navigate(`/home?page=${target}`);
+        navigate(`${route}?page=${target}`);
       }}
     >
       {val}
@@ -40,7 +40,7 @@ function RoundedPage({ val }) {
   );
 }
 
-function Paginator({ currentPage, totalResults, setCurrentPage }) {
+function Paginator({ currentPage, totalResults, setCurrentPage, route }) {
   const navigate = useNavigate();
   let totalPages = Math.ceil(totalResults / BLITTER_APP_BLEAT_PAGE_SIZE);
   const maxPagesToShow = BLITTER_APP_BLEAT_MAX_PAGES;
@@ -65,6 +65,7 @@ function Paginator({ currentPage, totalResults, setCurrentPage }) {
     totalPages > 1 && (
       <nav
         className="isolate inline-flex -space-x-px rounded-md shadow-sm "
+        // className="top-0 z-10 bg-gray-800 fixed top-0 left-0 right-0 z-10"
         aria-label="Pagination"
       >
         {currentPage > 1 && (
@@ -86,6 +87,7 @@ function Paginator({ currentPage, totalResults, setCurrentPage }) {
             key={1}
             target={1}
             setCurrentPage={setCurrentPage}
+            route={route}
           />
         )}
 
@@ -104,6 +106,7 @@ function Paginator({ currentPage, totalResults, setCurrentPage }) {
             target={page}
             active={page == currentPage}
             setCurrentPage={setCurrentPage}
+            route={route}
           />
         ))}
 
@@ -115,6 +118,7 @@ function Paginator({ currentPage, totalResults, setCurrentPage }) {
             key={totalPages}
             target={totalPages}
             setCurrentPage={setCurrentPage}
+            route={route}
           />
         )}
 
@@ -137,9 +141,10 @@ export default function PaginationFooter({
   totalPages,
   totalResults,
   setCurrentPage,
+  route,
 }) {
   return (
-    <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 text-gray-500 dark:bg-gray-900 dark:text-white sm:px-6">
+    <div className="bottom-0 fixed left-0 right-0 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 text-gray-500 dark:bg-gray-900 dark:text-white sm:px-6">
       <div className="flex flex-1 justify-between sm:hidden">
         {["Previous", "Next"].map((val) => (
           <RoundedPage val={val} key={val} />
@@ -148,26 +153,33 @@ export default function PaginationFooter({
 
       <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm">
-            Showing{" "}
-            <span className="font-medium">
-              {(currentPage - 1) * BLITTER_APP_BLEAT_PAGE_SIZE + 1}
-            </span>{" "}
-            to{" "}
-            <span className="font-medium">
-              {Math.min(
-                totalResults,
-                currentPage * BLITTER_APP_BLEAT_PAGE_SIZE
-              )}
-            </span>{" "}
-            of <span className="font-medium">{totalResults}</span> results
-          </p>
+          {
+            <p
+              className={`text-sm  ${
+                totalResults > 0 ? "visible" : "invisible"
+              }`}
+            >
+              Showing{" "}
+              <span className="font-medium">
+                {(currentPage - 1) * BLITTER_APP_BLEAT_PAGE_SIZE + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-medium">
+                {Math.min(
+                  totalResults,
+                  currentPage * BLITTER_APP_BLEAT_PAGE_SIZE
+                )}
+              </span>{" "}
+              of <span className="font-medium">{totalResults}</span> results
+            </p>
+          }
         </div>
         <div>
           <Paginator
             currentPage={currentPage}
-            totalResults={totalResults}
             setCurrentPage={setCurrentPage}
+            totalResults={totalResults}
+            route={route}
           />
         </div>
       </div>

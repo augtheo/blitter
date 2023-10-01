@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Alert } from "flowbite-react";
 import { useState } from "react";
 export interface AlertMessage {
+  hidden: boolean;
   color: string;
   message: {
     title: string;
@@ -10,13 +11,15 @@ export interface AlertMessage {
 }
 
 export default function DismissableAlert({ alertMessage }) {
-  const [showAlert, setShowAlert] = useState(true);
-  console.log(alertMessage);
+  const [hideAlert, setHideAlert] = useState(alertMessage.hidden);
   const handleAlertDismiss = () => {
-    setShowAlert(false);
+    setHideAlert(true);
   };
+  useEffect(() => {
+    setTimeout(() => setHideAlert(true), 3000);
+  }, []);
   return (
-    showAlert && (
+    !hideAlert && (
       <Alert color={alertMessage.color} onDismiss={handleAlertDismiss}>
         <span>
           <p>

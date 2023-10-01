@@ -5,7 +5,10 @@ import { BrowserRouter } from "react-router-dom";
 import { AxiosNavigation } from "./utils/axios";
 import App from "./App";
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+const rootElement = document.getElementById("root") as HTMLElement;
+rootElement.classList.add("dark:bg-gray-900");
+rootElement.classList.add("bg-gray-50");
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter>
       <AxiosNavigation />
