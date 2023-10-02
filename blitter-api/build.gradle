@@ -10,6 +10,9 @@ plugins {
 group = 'com.augtheo'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
+springBoot {
+  mainClass = 'com.augtheo.blitter.BlitterAPIApplication'
+}
 
 configurations {
     compileOnly {
@@ -23,7 +26,7 @@ repositories {
 
 openApiGenerate {
     generatorName = 'spring'
-    inputSpec = "$projectDir/src/main/resources/openapi-blitter-0.2.0-resolved.yaml"
+    inputSpec = "$rootDir/blitter-oas/blitter.yml"
     packageName = 'com.augtheo.blitter'
     configOptions = [
             interfaceOnly: 'true',
@@ -47,8 +50,8 @@ openApiGenerate {
 
 tasks.register('generateDocs', GenerateTask) {
     generatorName = 'markdown'
-    inputSpec = "$projectDir/src/main/resources/openapi-blitter-0.2.0-resolved.yaml"
-    outputDir = "$projectDir/src/main/docs/"
+    inputSpec = "$rootDir/blitter-oas/blitter.yml"
+    outputDir = "$rootDir/blitter-oas/docs/"
 }
 
 dependencies {

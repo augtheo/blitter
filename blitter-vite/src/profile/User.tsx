@@ -1,12 +1,17 @@
 import React from "react";
 import axios from "../utils/axios";
-import BleatCard from "../bleat/BleatCard";
 import { useState } from "react";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { BleatRes, BleatsApi, UsersApi } from "../generated-sources/openapi";
+import { useParams, useSearchParams } from "react-router-dom";
+import {
+  BleatRes,
+  BleatsApi,
+  PaginatedBleats,
+  UsersApi,
+} from "../generated-sources/openapi";
 import JwtAuthApiConfigurationFactory from "../api/JwtAuthApiConfigurationFactory";
 import { getApiConfigurationFactory } from "../api/FactoryProvider";
+import BleatList from "../bleat/BleatList";
 
 function Follow({ author }) {
   const [isFollowing, setIsFollowing] = useState(author.following);
@@ -83,22 +88,37 @@ function UserCard({ author, setAuthor }) {
 
 export default function User() {
   const { id } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [author, setAuthor] = useState({});
+  const [currentPage, setCurrentPage] = useState(
+    parseInt(searchParams.get("page") || "1")
+  );
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalResults, setTotalResults] = useState(0);
   const [bleatsByAuthor, setBleatsByAuthor] = useState<BleatRes[]>([]);
-  const usersApi: UsersApi = new UsersApi(getApiConfigurationFactory());
-  const bleatsApiAuth: BleatsApi = new BleatsApi(getApiConfigurationFactory());
+
+  const configuration = getApiConfigurationFactory();
+  const usersApi: UsersApi = new UsersApi(configuration);
+  const bleatsApiAuth: BleatsApi = new BleatsApi(configuration);
+
   useEffect(() => {
     window.scrollTo(0, 0);
     const f = async () => {
       try {
-        console.log(id);
         if (id != undefined) {
           const authorRes = await usersApi.getAuthor(id);
-          const bleatsByUser = await usersApi.getBleatsByAuthor(id);
-          console.log(authorRes);
-          console.log(bleatsByUser);
+          const bleatsByUserRes = await usersApi.getBleatsByAuthor(
+            id,
+            currentPage - 1,
+            10
+          );
           setAuthor(authorRes.data);
-          setBleatsByAuthor(bleatsByUser.data);
+          if (bleatsByUserRes.status === 200) {
+            setBleatsByAuthor(bleatsByUserRes.data.bleats);
+            setTotalResults(bleatsByUserRes.data.total_bleats);
+            setTotalPages(bleatsByUserRes.data.total_pages);
+          }
         }
       } catch (error) {
         console.log(error);
@@ -111,15 +131,14 @@ export default function User() {
       <div className="min-h-screen  grow ">
         <UserCard author={author} setAuthor={setAuthor} key={author.id} />
         <hr className="mx-auto my-4 h-1 w-48 rounded border-0 bg-gray-100 dark:bg-gray-700 md:my-10" />
-        <div>
-          {bleatsByAuthor.map((bleat) => (
-            <BleatCard
-              bleat={bleat}
-              key={bleat.id}
-              setBleats={setBleatsByAuthor}
-            />
-          ))}
-        </div>
+        <BleatList
+          bleats={bleatsByAuthor}
+          setBleats={setBleatsByAuthor}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
+          totalResults={totalResults}
+        />
       </div>
     )
   );

@@ -2,6 +2,8 @@ package com.augtheo.blitter.bleat;
 
 import com.augtheo.blitter.author.Author;
 import com.augtheo.blitter.author.AuthorService;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -91,11 +93,11 @@ public class BleatService {
     return Optional.of(bleatRepository.getReferenceById(id));
   }
 
-  public List<Bleat> getRepliesTo(Long id) {
-    Optional<Bleat> bleat = getBleat(id);
-    if (bleat.isPresent()) return bleatRepository.findAllByParent(bleat.get());
-    else return null;
-  }
+  // public List<Bleat> getRepliesTo(Long id) {
+  //   Optional<Bleat> bleat = getBleat(id);
+  //   if (bleat.isPresent()) return bleatRepository.findAllByParent(bleat.get());
+  //   else return Collections.emptyList();
+  // }
 
   public Long getReplyCount(Long id) {
     Optional<Bleat> bleat = getBleat(id);

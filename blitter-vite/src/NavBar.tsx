@@ -6,7 +6,6 @@ import { Fragment } from "react";
 import { useNavigate, Outlet, Link } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
-import axios from "./utils/axios";
 
 import DismissableAlert from "./alerts";
 import { UsersApi } from "./generated-sources/openapi";
@@ -20,7 +19,6 @@ function AuthenticatedUserOptions({ author, navigate }) {
   function handleLogout(event) {
     event.preventDefault();
     localStorage.removeItem("blitter.auth.token");
-    // setAlertMessages([]);
     navigate("/login");
   }
   return (
@@ -73,7 +71,6 @@ function UnAuthenticatedUserOptions({ navigate }) {
   function handleLogout(event) {
     event.preventDefault();
     localStorage.removeItem("blitter.auth.token");
-    // setAlertMessages([]);
     navigate("/login");
   }
   return (

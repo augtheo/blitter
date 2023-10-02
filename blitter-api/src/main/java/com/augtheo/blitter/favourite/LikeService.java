@@ -49,7 +49,7 @@ public class LikeService {
     if (optionalFavourite.isEmpty()) {
       bleat.setLikeCount(bleat.getLikeCount() + 1);
       bleatRepository.save(bleat);
-      likeRepository.deleteById(optionalFavourite.get().getId());
+      likeRepository.save(new Favourite(bleat, authorRepository.getReferenceById(authorId)));
     }
   }
 

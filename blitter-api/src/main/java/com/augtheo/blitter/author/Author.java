@@ -1,5 +1,6 @@
 package com.augtheo.blitter.author;
 
+import com.augtheo.blitter.favourite.Favourite;
 import jakarta.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,6 +50,9 @@ public class Author implements UserDetails {
   @ToString.Exclude
   @ManyToMany(mappedBy = "followers")
   private @Singular Set<Author> following = new HashSet<>();
+
+  @EqualsAndHashCode.Exclude @ToString.Exclude @OneToMany
+  private Set<Favourite> favourites = new HashSet<>();
 
   public Author(String username, String name, String password) {
     this.username = username;

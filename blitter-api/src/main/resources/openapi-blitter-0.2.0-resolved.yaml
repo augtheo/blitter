@@ -28,33 +28,6 @@ paths:
                     type: string
       security:
         - blitterBasicAuth: []
-  /public:
-    get:
-      tags:
-        - Bleats
-      summary: Get a list of public bleats
-      description: Returns a list of bleats with pagination
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-          description: The page number to retrieve (defaults to 1)
-        - in: query
-          name: per_page
-          schema:
-            type: integer
-            default: 10
-          description: The number of items per page to retrieve (defaults to 10)
-      operationId: getPublicBleats
-      responses:
-        "200":
-          description: A list of bleats
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PaginatedBleats"
   /bleats:
     get:
       tags:
@@ -242,13 +215,25 @@ paths:
           schema:
             type: integer
             format: int64
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: The page number to retrieve (defaults to 1)
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 10
+          description: The number of items per page to retrieve (defaults to 10)
       responses:
         "200":
           description: Bleat
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BleatsRes"
+                $ref: "#/components/schemas/PaginatedBleats"
     post:
       tags:
         - Bleats
@@ -342,13 +327,25 @@ paths:
           explode: false
           schema:
             type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: The page number to retrieve (defaults to 1)
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+            default: 10
+          description: The number of items per page to retrieve (defaults to 10)
       responses:
         "200":
           description: All the bleats posted by author
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/BleatsRes"
+                $ref: "#/components/schemas/PaginatedBleats"
   /users/{username}/liked:
     get:
       tags:

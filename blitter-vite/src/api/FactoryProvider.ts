@@ -10,7 +10,6 @@ const providers = [
 export function getApiConfigurationFactory(): Configuration | undefined {
   for (var provider of providers) {
     const configuration = new provider().createApiConfiguration();
-    console.log(configuration);
     if (configuration != undefined) {
       return configuration;
     }

@@ -1,9 +1,13 @@
 services:
   blitter-api:
+    restart: always
     environment:
       - SPRING_PROFILES_ACTIVE=ssl
   blitter-web:
+    restart: always
     ports:
       - 3000:3000
     build:
       target: prod
+  db:
+    restart: always

@@ -1,7 +1,8 @@
 services:
   blitter-api:
-    build: blitter-api
-    restart: always
+    build:
+      context: ./
+      dockerfile: blitter-api/Dockerfile
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DB_NAME}
       - SPRING_DATASOURCE_USERNAME=${DB_USER}
@@ -20,7 +21,6 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
-    restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -30,12 +30,12 @@ services:
       - spring-postgresql
   blitter-web:
     build:
-      context: blitter-vite
+      context: ./
+      dockerfile: blitter-vite/Dockerfile
     volumes:
       - /project/node_modules
     depends_on:
       - blitter-api
-    restart: always
   prometheus:
     image: prom/prometheus
     volumes:
@@ -50,7 +50,6 @@ services:
       - blitter-monitoring
     ports:
       - 9090:9090
-    restart: always
   grafana:
     image: grafana/grafana:latest
     ports:

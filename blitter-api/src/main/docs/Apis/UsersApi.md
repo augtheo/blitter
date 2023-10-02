@@ -93,7 +93,7 @@ null (empty response body)
 
 <a name="getBleatsByAuthor"></a>
 # **getBleatsByAuthor**
-> List getBleatsByAuthor(username)
+> PaginatedBleats getBleatsByAuthor(username, page, per\_page)
 
 Get a list of bleats posted by user
 
@@ -104,10 +104,12 @@ Get a list of bleats posted by user
 |Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
 | **username** | **String**|  | [default to null] |
+| **page** | **Integer**| The page number to retrieve (defaults to 1) | [optional] [default to 1] |
+| **per\_page** | **Integer**| The number of items per page to retrieve (defaults to 10) | [optional] [default to 10] |
 
 ### Return type
 
-[**List**](../Models/BleatRes.md)
+[**PaginatedBleats**](../Models/PaginatedBleats.md)
 
 ### Authorization
 

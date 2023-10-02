@@ -1,23 +1,24 @@
 FROM openjdk:17-jdk-alpine as build
 WORKDIR /workspace/app
 
-COPY gradlew .
+COPY gradlew gradlew
 COPY gradle gradle
-# COPY .gradle .gradle
-COPY build.gradle .
-COPY settings.gradle .
-RUN ./gradlew --version
-# TODO: Avoid re-downloading the gradle binary each time.
-# TODO: Avoid re-downloading the dependencies
-COPY src src
+COPY .gradle .gradle
+COPY settings.gradle settings.gradle
 
-RUN ./gradlew bootJar
-RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../../build/libs/*.jar)
+COPY blitter-oas blitter-oas
+
+COPY blitter-api/build.gradle blitter-api/build.gradle
+COPY blitter-api/settings.gradle blitter-api/settings.gradle
+COPY blitter-api/src blitte-api/src
+
+RUN ./gradlew :blitter-api:bootJar
+RUN mkdir -p blitter-api/target/dependency && (cd blitter-api/target/dependency; jar -xf ../../build/libs/*.jar)
 
 
 FROM openjdk:17-jdk-alpine
 VOLUME /tmp
-ARG DEPENDENCY=/workspace/app/target/dependency
+ARG DEPENDENCY=/workspace/app/blitter-api/target/dependency
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app

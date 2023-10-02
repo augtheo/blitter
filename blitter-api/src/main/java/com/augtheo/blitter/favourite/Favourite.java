@@ -18,7 +18,7 @@ public class Favourite {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "like_sequence")
   private Long id;
 
-  @OneToOne private Author author;
+  @ManyToOne private Author author;
 
   @ManyToOne private Bleat bleat;
 

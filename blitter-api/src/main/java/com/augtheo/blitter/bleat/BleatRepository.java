@@ -2,7 +2,6 @@ package com.augtheo.blitter.bleat;
 
 import com.augtheo.blitter.author.Author;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,9 +18,9 @@ public interface BleatRepository extends JpaRepository<Bleat, Long> {
 
   Page<Bleat> findAllByOrderByLastModifiedDateDesc(Pageable pageable);
 
-  List<Bleat> findAllByAuthor(Author author);
+  Page<Bleat> findAllByAuthor(Pageable pageable, Author author);
 
-  List<Bleat> findAllByParent(Bleat parent);
+  Page<Bleat> findAllByParent(Pageable pagea, Bleat parent);
 
   Boolean existsByIdAndAuthor(Long id, Author author);
 

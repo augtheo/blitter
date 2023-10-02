@@ -1,5 +1,4 @@
 import React from "react";
-import axios from "../utils/axios";
 import { Menu, Transition } from "@headlessui/react";
 import {
   ArrowTopRightOnSquareIcon,
@@ -7,7 +6,10 @@ import {
   HeartIcon,
 } from "@heroicons/react/24/outline";
 import { Fragment, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { getApiConfigurationFactory } from "../api/FactoryProvider";
+import { BleatsApi, FavouriteApi } from "../generated-sources/openapi";
+import { getHumanReadableDate } from "../utils/utils";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -27,31 +29,22 @@ function BleatImage({ bleato }) {
 }
 
 export default function BleatCard({ bleat, setBleats }) {
-  const getHumanReadableDate = (date) => {
-    const _date = new Date(date);
-    return _date.toDateString();
-  };
-
-  // console.log(bleat);
-
   const navigate = useNavigate();
   const [replyCount, setReplyCount] = useState(bleat.replyCount);
   const [likeCount, setLikeCount] = useState(bleat.likeCount);
   const [authorLiked, setAuthorLiked] = useState(bleat.authorLiked);
+
   const [editMode, setEditMode] = useState(false);
   const [commentMode, setCommentMode] = useState(false);
+
+  const configuration = getApiConfigurationFactory();
+  const bleatsApi: BleatsApi = new BleatsApi(configuration);
+  const favoritesApi: FavouriteApi = new FavouriteApi(configuration);
 
   const handleDelete = async (event) => {
     try {
       event.stopPropagation();
-      const response = await axios({
-        method: "delete",
-        url: "/bleats/" + bleat.id,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("blitter.auth.token"),
-        },
-      });
+      const response = await bleatsApi.deleteBleat(bleat.id);
       setBleats((prevBleats) => prevBleats.filter((bl) => bl.id !== bleat.id));
       navigate("/home");
     } catch (error) {
@@ -94,17 +87,8 @@ export default function BleatCard({ bleat, setBleats }) {
         const formData = new FormData(form);
         const formJson = Object.fromEntries(formData.entries());
 
-        const response = await axios({
-          method: "patch",
-          url: "/bleats/" + bleat.id,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              "Bearer " + localStorage.getItem("blitter.auth.token"),
-          },
-          data: {
-            message: formJson.editContents,
-          },
+        const response = await bleatsApi.updateBleat(bleat.id, {
+          message: formJson.editContents.toString(),
         });
 
         if (response.status === 200) {
@@ -161,7 +145,6 @@ export default function BleatCard({ bleat, setBleats }) {
             <textarea
               id="bleatEditor"
               name="editContents"
-              rows="8"
               className="block w-full border-0 bg-white px-0 text-sm text-gray-800 focus:ring-0 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
               defaultValue={bleat.message}
               required
@@ -192,24 +175,15 @@ export default function BleatCard({ bleat, setBleats }) {
         const formData = new FormData(form);
         const formJson = Object.fromEntries(formData.entries());
 
-        const response = await axios({
-          method: "post",
-          url: "/bleats/" + bleat.id + "/reply",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              "Bearer " + localStorage.getItem("blitter.auth.token"),
-          },
-          data: {
-            message: formJson.replyContents,
-          },
+        const response = await bleatsApi.replyBleat(bleat.id, {
+          message: formJson.replyContents.toString(),
         });
 
         if (response.status === 200) {
           event.target.reset();
           setReplyCount((replyCount) => replyCount + 1);
           setBleats((prevBleats) => [response.data, ...prevBleats]);
-          toggleComment();
+          toggleComment(event);
         }
       } catch (error) {
         console.log(error);
@@ -280,16 +254,16 @@ export default function BleatCard({ bleat, setBleats }) {
   const toggleLike = async (event) => {
     try {
       event.stopPropagation();
-      setAuthorLiked(!authorLiked);
-      const response = await axios({
-        method: "post",
-        url: "/bleats/" + bleat.id + "/toggleLike",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + localStorage.getItem("blitter.auth.token"),
-        },
-      });
-      setLikeCount(response.data.likeCount);
+      if (!authorLiked) {
+        await favoritesApi.likeBleat(bleat.id);
+        setAuthorLiked(true);
+        setLikeCount((likeCount) => likeCount + 1);
+      } else {
+
+        await favoritesApi.unlikeBleat(bleat.id);
+        setAuthorLiked(false);
+        setLikeCount((likeCount) => likeCount -1);
+      }
     } catch (error) {
       console.log(error);
     }

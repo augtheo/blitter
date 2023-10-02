@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Fieldv3, Passwordv3 } from "../utils/Forms";
-import axios from "../utils/axios";
 import Base from "./Base";
 import { Link, useNavigate } from "react-router-dom";
 import { AlertMessage } from "../alerts";
@@ -17,7 +16,6 @@ export function LoginBase({ alertMessages, setAlertMessages }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log(loginForm);
     try {
       const configuration = new Configuration({
         basePath: import.meta.env.VITE_APP_API_URL,
@@ -26,7 +24,6 @@ export function LoginBase({ alertMessages, setAlertMessages }) {
       });
       const authApi = new AuthenticationApi(configuration);
       const response = await authApi.authPost();
-      console.log(response);
       if (response.status === 200 && response.data.jwt != null) {
         localStorage.setItem("blitter.auth.token", response.data.jwt);
         localStorage.setItem("currentUser", loginForm.username);

@@ -14,26 +14,10 @@ export default function PublishBleat({ setPublishBleat }) {
       const formData = new FormData(form);
       const formJson = Object.fromEntries(formData.entries());
 
-      // let headers = {
-      //   "Content-Type": "application/json",
-      // };
-
-      // if (localStorage.getItem("blitter.auth.token")) {
-      //   headers["Authorization"] =
-      //     "Bearer " + localStorage.getItem("blitter.auth.token");
-      // }
       const bleatReq: BleatReq = {
         message: formJson.postContents.toString(),
       };
       const response = await bleatsApi.postBleat(bleatReq);
-      // const response = await axios({
-      //   method: "post",
-      //   url: "/bleats",
-      //   headers: headers,
-      //   data: {
-      //     message: formJson.postContents,
-      //   },
-      // });
 
       if (response.status === 200) {
         setPublishBleat(response.data);

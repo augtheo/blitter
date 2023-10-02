@@ -1,18 +1,17 @@
 package com.augtheo.blitter.bleat;
 
 import com.augtheo.blitter.api.BleatsApi;
-import com.augtheo.blitter.api.PublicApi;
 import com.augtheo.blitter.author.Author;
 import com.augtheo.blitter.author.AuthorService;
 import com.augtheo.blitter.favourite.LikeService;
 import com.augtheo.blitter.model.BleatReq;
 import com.augtheo.blitter.model.BleatRes;
 import com.augtheo.blitter.model.PaginatedBleats;
-import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -26,18 +25,23 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Slf4j
-public class BleatController implements BleatsApi, PublicApi {
+public class BleatController implements BleatsApi {
 
   private final BleatService bleatService;
   private final AuthorService authorService;
   private final LikeService likeService;
+  private final BleatRepository bleatRepository;
 
   @Autowired
   public BleatController(
-      BleatService bleatService, AuthorService authorService, LikeService likeService) {
+      BleatService bleatService,
+      AuthorService authorService,
+      LikeService likeService,
+      BleatRepository bleatRepository) {
     this.authorService = authorService;
     this.bleatService = bleatService;
     this.likeService = likeService;
+    this.bleatRepository = bleatRepository;
   }
 
   @Override
@@ -64,38 +68,35 @@ public class BleatController implements BleatsApi, PublicApi {
   }
 
   @Override
-  public ResponseEntity<List<BleatRes>> getBleatReplies(Long id) {
+  public ResponseEntity<PaginatedBleats> getBleatReplies(Long id, Integer page, Integer perPage) {
+    Optional<Bleat> bleat = bleatService.getBleat(id);
+    if (bleat.isEmpty()) {
+      return ResponseEntity.ok(PaginatedBleats.builder().build());
+    }
     final var currentAuthor = getCurrentAuthor();
-    return ResponseEntity.ok(
-        bleatService.getRepliesTo(id).stream()
-            .map(this::domainModelConverter)
-            .map(
-                bleatRes ->
-                    currentAuthor.isPresent()
-                        ? bleatRes.authorLiked(
-                            likeService.hasLiked(bleatRes.getId(), currentAuthor.get().getId()))
-                        : bleatRes)
-            .toList());
-  }
-
-  @Override
-  public ResponseEntity<PaginatedBleats> getPublicBleats(Integer page, Integer perPage) {
-    Page<Bleat> bleatPage = bleatService.getBleats(page, perPage);
+    Page<Bleat> bleatPage =
+        bleatRepository.findAllByParent(PageRequest.of(page, perPage), bleat.get());
     PaginatedBleats paginatedBleats =
         PaginatedBleats.builder()
             .bleats(
                 bleatPage.getContent().stream()
                     .map(this::domainModelConverter)
-                    .map(bleatRes -> bleatRes.authorLiked(false))
+                    .map(
+                        bleatRes ->
+                            bleatRes.authorLiked(
+                                currentAuthor.isPresent()
+                                    ? likeService.hasLiked(
+                                        bleatRes.getId(), currentAuthor.get().getId())
+                                    : false))
                     .toList())
             .page(page)
             .perPage(perPage)
             .totalBleats(bleatPage.getTotalElements())
             .totalPages(bleatPage.getTotalPages())
             .build();
-    log.info("Response : {} ", paginatedBleats);
     return ResponseEntity.ok(paginatedBleats);
   }
+
 
   @Override
   public ResponseEntity<PaginatedBleats> getBleats(

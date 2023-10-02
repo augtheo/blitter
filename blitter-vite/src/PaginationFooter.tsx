@@ -21,7 +21,7 @@ function Page({ val, pos, target, active, setCurrentPage, route }) {
       )}
       onClick={() => {
         setCurrentPage(target);
-        navigate(`${route}?page=${target}`);
+        navigate(`?page=${target}`);
       }}
     >
       {val}
@@ -40,7 +40,7 @@ function RoundedPage({ val }) {
   );
 }
 
-function Paginator({ currentPage, totalResults, setCurrentPage, route }) {
+function Paginator({ currentPage, totalResults, setCurrentPage }) {
   const navigate = useNavigate();
   let totalPages = Math.ceil(totalResults / BLITTER_APP_BLEAT_PAGE_SIZE);
   const maxPagesToShow = BLITTER_APP_BLEAT_MAX_PAGES;
@@ -87,7 +87,6 @@ function Paginator({ currentPage, totalResults, setCurrentPage, route }) {
             key={1}
             target={1}
             setCurrentPage={setCurrentPage}
-            route={route}
           />
         )}
 
@@ -106,7 +105,6 @@ function Paginator({ currentPage, totalResults, setCurrentPage, route }) {
             target={page}
             active={page == currentPage}
             setCurrentPage={setCurrentPage}
-            route={route}
           />
         ))}
 
@@ -118,7 +116,6 @@ function Paginator({ currentPage, totalResults, setCurrentPage, route }) {
             key={totalPages}
             target={totalPages}
             setCurrentPage={setCurrentPage}
-            route={route}
           />
         )}
 
@@ -141,7 +138,6 @@ export default function PaginationFooter({
   totalPages,
   totalResults,
   setCurrentPage,
-  route,
 }) {
   return (
     <div className="bottom-0 fixed left-0 right-0 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 text-gray-500 dark:bg-gray-900 dark:text-white sm:px-6">
@@ -179,7 +175,6 @@ export default function PaginationFooter({
             currentPage={currentPage}
             setCurrentPage={setCurrentPage}
             totalResults={totalResults}
-            route={route}
           />
         </div>
       </div>

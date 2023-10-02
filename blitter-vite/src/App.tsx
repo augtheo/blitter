@@ -7,14 +7,14 @@ import FeedWrapper from "./bleat/FeedWrapper";
 import { useState, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import UnderMaintenance from "./UnderMaintenance";
-import DismissableAlert from "./alerts";
+import DismissableAlert, { AlertMessage } from "./alerts";
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(
     localStorage.getItem("darkMode") || "true"
   );
 
-  const [alertMessages, setAlertMessages] = useState([]);
+  const [alertMessages, setAlertMessages] = useState<AlertMessage[]>([]);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -44,7 +44,6 @@ export default function App() {
           />
           <Route path="/register" element={<Register />} />
           <Route path="/error" element={<UnderMaintenance />} />
-          {/* <Route path="*" element={<FourZeroFour />} /> */}
           <Route
             path="*"
             element={
@@ -58,10 +57,7 @@ export default function App() {
                 <FeedWrapper route={"/home"} />
               </div>
             }
-          >
-            {/* <Route path="home" element={<Feed route={"/home"} />} /> */}
-            {/* <Route path="feed" element={<Feed route={"/feed"} />} /> */}
-          </Route>
+          ></Route>
         </Routes>
       </div>
     )

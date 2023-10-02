@@ -7,11 +7,14 @@ import com.augtheo.blitter.bleat.BleatRepository;
 import com.augtheo.blitter.favourite.LikeService;
 import com.augtheo.blitter.model.AuthorRes;
 import com.augtheo.blitter.model.BleatRes;
+import com.augtheo.blitter.model.PaginatedBleats;
 import com.augtheo.blitter.model.RegisterReq;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -96,12 +99,6 @@ public class AuthorController implements UsersApi, RegisterApi {
     return ResponseEntity.ok().build();
   }
 
-  // private Author getCurrentAuthor() {
-  //   Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-  //   Author currentAuthor = authorService.getAuthorByUsername(auth.getName());
-  //   return currentAuthor;
-  // }
-
   private Optional<Author> getCurrentAuthor() {
     // FIXME: Currently using two separate paths
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -120,7 +117,6 @@ public class AuthorController implements UsersApi, RegisterApi {
 
   private AuthorRes domainModelConverter(Author author) {
 
-    // Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     Optional<Author> currentAuthor = getCurrentAuthor();
 
     return AuthorRes.builder()
@@ -157,11 +153,28 @@ public class AuthorController implements UsersApi, RegisterApi {
   }
 
   @Override
-  public ResponseEntity<List<BleatRes>> getBleatsByAuthor(String username) {
-    return ResponseEntity.ok(
-        bleatRepository.findAllByAuthor(authorService.getAuthorByUsername(username)).stream()
-            .map(this::domainModelConverter)
-            .toList());
+  public ResponseEntity<PaginatedBleats> getBleatsByAuthor(
+      String username, Integer page, Integer perPage) {
+
+    Optional<Author> author = authorService.getOptionalAuthorByUsername(username);
+    if (author.isEmpty()) {
+      return ResponseEntity.ok(PaginatedBleats.builder().build());
+    }
+    Page<Bleat> bleatPage =
+        bleatRepository.findAllByAuthor(PageRequest.of(page, perPage), author.get());
+    PaginatedBleats paginatedBleats =
+        PaginatedBleats.builder()
+            .bleats(
+                bleatPage.getContent().stream()
+                    .map(this::domainModelConverter)
+                    .map(bleatRes -> bleatRes.authorLiked(false))
+                    .toList())
+            .page(page)
+            .perPage(perPage)
+            .totalBleats(bleatPage.getTotalElements())
+            .totalPages(bleatPage.getTotalPages())
+            .build();
+    return ResponseEntity.ok(paginatedBleats);
   }
 
   @Override
@@ -171,17 +184,4 @@ public class AuthorController implements UsersApi, RegisterApi {
             .map(this::domainModelConverter)
             .toList());
   }
-
-  // private Author getCurrentAuthor() {
-  //   // FIXME Currently using two separate paths
-  //   Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-  //   Long id = null;
-  //   if (authentication instanceof Jwt) {
-  //     Jwt token = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-  //     id = token.getClaim("author_id");
-  //     return authorService.getAuthorById(id);
-  //   } else {
-  //     return authorService.getAuthorByUsername(authentication.getName());
-  //   }
-  // }
 }
