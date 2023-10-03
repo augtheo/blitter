@@ -55,4 +55,7 @@ task generateDocs(type: GenerateTask) {
     outputDir = "$rootDir/blitter-oas/docs/"
 }
 
-
+tasks.generateDocs.doFirst {
+  delete "$rootDir/blitter-oas/docs/"
+    println "$rootDir/blitter-oas/docs/"
+}

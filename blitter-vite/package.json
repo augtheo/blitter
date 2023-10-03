@@ -7,7 +7,6 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "codegen": "openapi-generator-cli generate -i ../blitter-oas/blitter.yml -o ./src/generated-sources/openapi -g typescript-axios --additional-properties=supportsES6=true,typescriptThreePlus=true",
     "preview": "vite preview"
   },
   "dependencies": {
