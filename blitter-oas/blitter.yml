@@ -4,8 +4,8 @@ info:
   description: A RESTful API for blitter, a twitter clone
   version: 0.3.0
 servers:
-  - url: https://blitter.augtheo.com:8080/
   - url: http://localhost:8080/
+  - url: https://blitter.augtheo.com:8080/
 tags:
   - name: Bleats
     description: Operations related to bleats
