@@ -2,9 +2,6 @@ package com.augtheo.blitter.bleat;
 
 import com.augtheo.blitter.author.Author;
 import com.augtheo.blitter.author.AuthorService;
-
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,7 +79,7 @@ public class BleatService {
       Bleat bleat = optionalBleat.get();
       Bleat parent = bleat.getParent();
       if (parent != null) {
-        // parent.setReplyCount(parent.getReplyCount() - 1);
+        parent.setReplyCount(parent.getReplyCount() - 1);
         bleatRepository.save(parent);
       }
       bleatRepository.delete(bleat);
@@ -92,12 +89,6 @@ public class BleatService {
   public Optional<Bleat> getBleat(Long id) {
     return Optional.of(bleatRepository.getReferenceById(id));
   }
-
-  // public List<Bleat> getRepliesTo(Long id) {
-  //   Optional<Bleat> bleat = getBleat(id);
-  //   if (bleat.isPresent()) return bleatRepository.findAllByParent(bleat.get());
-  //   else return Collections.emptyList();
-  // }
 
   public Long getReplyCount(Long id) {
     Optional<Bleat> bleat = getBleat(id);

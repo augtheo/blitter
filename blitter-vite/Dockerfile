@@ -8,7 +8,6 @@ RUN bash /usr/local/bin/docker-entrypoint.sh generate \
     -g typescript-axios \
     -o out/generated-src \
     --additional-properties=supportsES6=true,typescriptThreePlus=true
-    # --server-variables=basePath=https://blitter.augtheo.com:8090
 
 FROM node:alpine as dev
 WORKDIR /app

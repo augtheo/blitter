@@ -1,3 +1,3 @@
 rootProject.name = 'blitter'
 include('blitter-api')
-include('blitter-vite')
+include('blitter-oas')

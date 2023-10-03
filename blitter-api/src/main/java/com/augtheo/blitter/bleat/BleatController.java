@@ -97,7 +97,6 @@ public class BleatController implements BleatsApi {
     return ResponseEntity.ok(paginatedBleats);
   }
 
-
   @Override
   public ResponseEntity<PaginatedBleats> getBleats(
       Integer page, Integer perPage, Boolean followingOnly) {

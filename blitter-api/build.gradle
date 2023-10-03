@@ -4,7 +4,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.1.4'
     id 'io.spring.dependency-management' version '1.1.0'
-    id "org.openapi.generator" version "6.2.1"
 }
 
 group = 'com.augtheo'
@@ -23,37 +22,6 @@ configurations {
 repositories {
     mavenCentral()
 }
-
-openApiGenerate {
-    generatorName = 'spring'
-    inputSpec = "$rootDir/blitter-oas/blitter.yml"
-    packageName = 'com.augtheo.blitter'
-    configOptions = [
-            interfaceOnly: 'true',
-            openApiNullable: 'false',
-            useBeanValidation: 'false',
-            documentationProvider : 'none',
-            packageName : 'com.augtheo.blitter',
-            apiPackage : 'com.augtheo.blitter.api',
-            modelPackage : 'com.augtheo.blitter.model',
-            useSpringBoot3 : 'true',
-            skipDefaultInterface : 'true',
-            additionalModelTypeAnnotations : '@lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor'
-    ]
-    importMappings = [
-            'java.time.OffsetDateTime' : 'java.time.LocalDateTime'
-    ]
-    typeMappings = [
-            'OffsetDateTime' : 'LocalDateTime'
-    ]
-}
-
-tasks.register('generateDocs', GenerateTask) {
-    generatorName = 'markdown'
-    inputSpec = "$rootDir/blitter-oas/blitter.yml"
-    outputDir = "$rootDir/blitter-oas/docs/"
-}
-
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
@@ -73,10 +41,9 @@ dependencies {
     testRuntimeOnly 'com.h2database:h2'
 }
 
-sourceSets.main.java.srcDirs += 'build/generate-resources/main/src/main/java'
+sourceSets.main.java.srcDirs += "$rootDir/blitter-api/build/generate-resources/main/src/main/java"
 
-compileJava.dependsOn([tasks.openApiGenerate , tasks.generateDocs])
-
+compileJava.dependsOn([':blitter-oas:openApiGenerateSpring' ])
 
 test {
     useJUnitPlatform()

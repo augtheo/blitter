@@ -1,0 +1,58 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
+plugins {
+  id "org.openapi.generator" version "6.2.1"
+}
+
+// Task for generating typescript-axios client
+task openApiGenerateTypescript(type: GenerateTask) {
+  generatorName = 'typescript-axios'
+    inputSpec = "$rootDir/blitter-oas/blitter.yml"
+    packageName = 'com.augtheo.blitter'
+    outputDir = "$rootDir/blitter-vite/src/generated-sources/openapi"
+}
+
+tasks.openApiGenerateTypescript.doFirst {
+  delete "${rootDir}/blitter-vite/src/generated-sources/openapi"
+    println "${rootDir}/blitter-vite/src/generated-sources/openapi"
+}
+
+// Task for generating spring server
+task openApiGenerateSpring(type: GenerateTask) {
+  generatorName = 'spring'
+    inputSpec = "$rootDir/blitter-oas/blitter.yml"
+    outputDir = "$rootDir/blitter-api/build/generate-resources/"
+    packageName = 'com.augtheo.blitter'
+    configOptions = [
+    interfaceOnly: 'true',
+    openApiNullable: 'false',
+    useBeanValidation: 'false',
+    documentationProvider : 'none',
+    packageName : 'com.augtheo.blitter',
+    apiPackage : 'com.augtheo.blitter.api',
+    modelPackage : 'com.augtheo.blitter.model',
+    useSpringBoot3 : 'true',
+    skipDefaultInterface : 'true',
+    additionalModelTypeAnnotations : '@lombok.Builder @lombok.NoArgsConstructor @lombok.AllArgsConstructor'
+    ]
+    importMappings = [
+    'java.time.OffsetDateTime' : 'java.time.LocalDateTime'
+    ]
+    typeMappings = [
+    'OffsetDateTime' : 'LocalDateTime'
+    ]
+}
+
+tasks.openApiGenerateSpring.doFirst {
+  delete "$rootDir/blitter-api/build/generate-resources/"
+    println "$rootDir/blitter-api/build/generate-resources/"
+}
+
+// Task for generating docs
+task generateDocs(type: GenerateTask) {
+  generatorName = 'markdown'
+    inputSpec = "$rootDir/blitter-oas/blitter.yml"
+    outputDir = "$rootDir/blitter-oas/docs/"
+}
+
+
