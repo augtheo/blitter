@@ -4,11 +4,16 @@ import axios from "../utils/axios";
 import { useEffect } from "react";
 import { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import { BleatRes, BleatsApi, PaginatedBleats } from "../generated-sources/openapi";
+import {
+  BleatRes,
+  BleatsApi,
+  PaginatedBleats,
+} from "../generated-sources/openapi";
 
 import configuration from "../utils/ClientConfig";
 import JwtAuthApiConfigurationFactory from "../api/JwtAuthApiConfigurationFactory";
 import BleatList from "./BleatList";
+import { BLITTER_APP_BLEAT_PAGE_SIZE } from "../utils/constant";
 
 export default function Bleat() {
   const { id } = useParams();
@@ -18,13 +23,13 @@ export default function Bleat() {
   const [bleatReplies, setBleatReplies] = useState<BleatRes[]>([]);
 
   const [currentPage, setCurrentPage] = useState(
-    parseInt(searchParams.get("page") || "1")
+    parseInt(searchParams.get("page") || "1"),
   );
   const [totalPages, setTotalPages] = useState(0);
   const [totalResults, setTotalResults] = useState(0);
 
   const bleatsApi: BleatsApi = new BleatsApi(
-    new JwtAuthApiConfigurationFactory().createApiConfiguration()
+    new JwtAuthApiConfigurationFactory().createApiConfiguration(),
   );
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -32,7 +37,11 @@ export default function Bleat() {
       try {
         const [bleatRes, bleatRepliesRes] = await Promise.all([
           bleatsApi.getBleat(id),
-          bleatsApi.getBleatReplies(id , currentPage - 1, 10),
+          bleatsApi.getBleatReplies(
+            id,
+            currentPage - 1,
+            BLITTER_APP_BLEAT_PAGE_SIZE,
+          ),
         ]);
 
         setBleat(bleatRes.data);

@@ -2,10 +2,9 @@ import React from "react";
 import axios from "axios";
 import { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import globalAxios from "axios";
 
-const instance = axios.create({
-  baseURL: import.meta.env.VITE_APP_API_URL,
-});
+const instance = globalAxios;
 
 export function useAxiosNavigation() {
   // https://stackoverflow.com/a/74086922/8674624
@@ -16,7 +15,10 @@ export function useAxiosNavigation() {
 
   useEffect(() => {
     const intercetpor = instance.interceptors.response.use(
-      (response) => response,
+      (response) => {
+        console.log(response);
+        return response;
+      },
       (error) => {
         switch (error?.code) {
           case "ERR_NETWORK":
@@ -26,12 +28,13 @@ export function useAxiosNavigation() {
         }
         switch (error?.response?.status) {
           case 401:
+            localStorage.removeItem("blitter.auth.token");
             navRef.current("/login");
             break;
           default:
         }
         return Promise.reject(error);
-      }
+      },
     );
     return () => {
       axios.interceptors.response.eject(intercetpor);

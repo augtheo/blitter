@@ -48,7 +48,7 @@ public class ApplicationSecurityConfiguration {
         .authorizeHttpRequests(
             authorize ->
                 authorize
-                    .requestMatchers(HttpMethod.GET, "/bleats/**", "/users/**")
+                    .requestMatchers(HttpMethod.GET, "/bleats**", "/users**")
                     .permitAll()
                     .requestMatchers(
                         "/register", "/actuator") // FIXME: actuator should not be exposed outside

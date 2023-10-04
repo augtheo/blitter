@@ -12,23 +12,18 @@ import {
 import JwtAuthApiConfigurationFactory from "../api/JwtAuthApiConfigurationFactory";
 import { getApiConfigurationFactory } from "../api/FactoryProvider";
 import BleatList from "../bleat/BleatList";
+import { BLITTER_APP_BLEAT_PAGE_SIZE } from "../utils/constant";
 
 function Follow({ author }) {
   const [isFollowing, setIsFollowing] = useState(author.following);
+  const configuration = getApiConfigurationFactory();
+  const usersApi: UsersApi = new UsersApi(configuration);
 
   const toggle = (action) => {
     const handleFollowUnfollow = async (event) => {
       try {
         event.preventDefault();
-        const response = await axios({
-          method: "post",
-          url: "/users/" + author.username + "/" + action,
-          headers: {
-            "Content-Type": "application/json",
-            Authorization:
-              "Bearer " + localStorage.getItem("blitter.auth.token"),
-          },
-        });
+        const response = await usersApi.followUser(author.username);
         setIsFollowing((isFollowing) => !isFollowing);
       } catch (error) {
         console.log(error);
@@ -92,7 +87,7 @@ export default function User() {
 
   const [author, setAuthor] = useState({});
   const [currentPage, setCurrentPage] = useState(
-    parseInt(searchParams.get("page") || "1")
+    parseInt(searchParams.get("page") || "1"),
   );
   const [totalPages, setTotalPages] = useState(0);
   const [totalResults, setTotalResults] = useState(0);
@@ -111,7 +106,7 @@ export default function User() {
           const bleatsByUserRes = await usersApi.getBleatsByAuthor(
             id,
             currentPage - 1,
-            10
+            BLITTER_APP_BLEAT_PAGE_SIZE,
           );
           setAuthor(authorRes.data);
           if (bleatsByUserRes.status === 200) {

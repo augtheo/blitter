@@ -186,10 +186,6 @@ public class BleatController implements BleatsApi {
     return Bleat.builder().message(bleatReq.getMessage()).author(getCurrentAuthor().get()).build();
   }
 
-  private Bleat domainModelConverter(BleatRes bleatRes) {
-    return Bleat.builder().message(bleatRes.getMessage()).author(getCurrentAuthor().get()).build();
-  }
-
   @Override
   public ResponseEntity<Void> toggleLikeBleat(Long id) {
     likeService.toggleLike(id, getCurrentAuthor().get().getId());
@@ -198,17 +194,21 @@ public class BleatController implements BleatsApi {
 
   @Override
   public ResponseEntity<Void> likeBleat(Long id) {
-    // likeService.like(id, getCurrentAuthor().get().getId());
-    likeService.addLike(id, getCurrentAuthor().get().getId());
+    Optional<Author> author = getCurrentAuthor();
+    if (author.isPresent()) {
+      likeService.addLike(id, getCurrentAuthor().get().getId());
+      return ResponseEntity.ok().build();
+    }
     return ResponseEntity.ok().build();
-    // throw new UnsupportedOperationException("Unimplemented method 'likeBleat'");
   }
 
   @Override
   public ResponseEntity<Void> unlikeBleat(Long id) {
-    // TODO Auto-generated method stub
-    likeService.addLike(id, getCurrentAuthor().get().getId());
+    Optional<Author> author = getCurrentAuthor();
+    if (author.isPresent()) {
+      likeService.removeLike(id, getCurrentAuthor().get().getId());
+      return ResponseEntity.ok().build();
+    }
     return ResponseEntity.ok().build();
-    // throw new UnsupportedOperationException("Unimplemented method 'unlikeBleat'");
   }
 }

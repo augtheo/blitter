@@ -64,7 +64,12 @@ public class AuthorController implements UsersApi, RegisterApi {
 
   @Override
   public ResponseEntity<AuthorRes> getSelf() {
-    return ResponseEntity.ok(domainModelConverter(getCurrentLoggedInAuthor()));
+    Optional<Author> author = getCurrentAuthor();
+    if (author.isEmpty()) {
+      return ResponseEntity.ok(AuthorRes.builder().build());
+    } else {
+      return ResponseEntity.ok(domainModelConverter(author.get()));
+    }
   }
 
   @Override
@@ -157,6 +162,7 @@ public class AuthorController implements UsersApi, RegisterApi {
       String username, Integer page, Integer perPage) {
 
     Optional<Author> author = authorService.getOptionalAuthorByUsername(username);
+    Optional<Author> currentAuthor = getCurrentAuthor();
     if (author.isEmpty()) {
       return ResponseEntity.ok(PaginatedBleats.builder().build());
     }
@@ -167,7 +173,13 @@ public class AuthorController implements UsersApi, RegisterApi {
             .bleats(
                 bleatPage.getContent().stream()
                     .map(this::domainModelConverter)
-                    .map(bleatRes -> bleatRes.authorLiked(false))
+                    .map(
+                        bleatRes ->
+                            bleatRes.authorLiked(
+                                currentAuthor.isPresent()
+                                    ? likeService.hasLiked(
+                                        bleatRes.getId(), currentAuthor.get().getId())
+                                    : false))
                     .toList())
             .page(page)
             .perPage(perPage)

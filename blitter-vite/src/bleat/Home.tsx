@@ -4,6 +4,7 @@ import PublishBleat from "./PublishBleat";
 import { getApiConfigurationFactory } from "../api/FactoryProvider";
 import { BleatRes, BleatsApi } from "../generated-sources/openapi";
 import { useSearchParams } from "react-router-dom";
+import { BLITTER_APP_BLEAT_MAX_PAGES } from "../utils/constant";
 
 export default function Home({ followingOnly }) {
   const [publishedBleat, setPublishedBleat] = useState({});
@@ -12,7 +13,7 @@ export default function Home({ followingOnly }) {
   const [totalResults, setTotalResults] = useState(0);
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(
-    parseInt(searchParams.get("page") || "1")
+    parseInt(searchParams.get("page") || "1"),
   );
 
   const configuration = getApiConfigurationFactory();
@@ -28,8 +29,8 @@ export default function Home({ followingOnly }) {
         var response;
         response = await bleatsApiAuth.getBleats(
           currentPage - 1,
-          10,
-          followingOnly
+          BLITTER_APP_BLEAT_MAX_PAGES,
+          followingOnly,
         );
 
         if (response.status === 200) {
