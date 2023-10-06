@@ -1,6 +1,29 @@
 import { Configuration } from "../generated-sources/openapi";
-import JwtAuthApiConfigurationFactory from "./JwtAuthApiConfigurationFactory";
-import NoAuthApiConfigurationFactory from "./NoAuthApiFactory";
+
+export interface ApiConfigurationFactory {
+  createApiConfiguration(): Configuration | undefined; // Return type can be specific to your implementation
+}
+class JwtAuthApiConfigurationFactory implements ApiConfigurationFactory {
+  createApiConfiguration(): Configuration | undefined {
+    const bearerToken = localStorage.getItem("blitter.auth.token");
+    if (bearerToken != null) {
+      return new Configuration({
+        basePath: import.meta.env.VITE_APP_API_URL,
+        accessToken: bearerToken,
+      });
+    }
+    return undefined;
+  }
+}
+
+class NoAuthApiConfigurationFactory implements ApiConfigurationFactory {
+  createApiConfiguration(): Configuration | undefined {
+    const configuration = new Configuration({
+      basePath: import.meta.env.VITE_APP_API_URL,
+    });
+    return configuration;
+  }
+}
 
 const providers = [
   JwtAuthApiConfigurationFactory,

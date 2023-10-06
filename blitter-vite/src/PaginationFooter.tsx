@@ -7,17 +7,16 @@ import { classNames } from "./utils/utils";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/20/solid";
 import { useNavigate } from "react-router-dom";
 
-function Page({ val, pos, target, active, setCurrentPage, route }) {
+function Page({ val, pos, target, active, setCurrentPage }) {
   const navigate = useNavigate();
 
-  //TODO: Highlight active page differently
   return (
     <button
       className={classNames(
         pos === 0 ? "rounded-l-md " : "",
         pos === 1 ? "rounded-r-md " : "",
         active ? "ring-1 z-30 border-primary-600 " : "",
-        "relative inline-flex items-center border  dark:bg-gray-800 border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50 focus:z-20 "
+        "relative inline-flex items-center border  dark:bg-gray-800 border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50 focus:z-20 ",
       )}
       onClick={() => {
         setCurrentPage(target);
@@ -29,19 +28,20 @@ function Page({ val, pos, target, active, setCurrentPage, route }) {
   );
 }
 
-function RoundedPage({ val }) {
+function RoundedPage({ val, action }) {
   return (
-    <a
-      href="#"
-      className="relative inline-flex items-center rounded-md border  border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50 focus:z-20 dark:bg-gray-800"
+    <button
+      className="relative inline-flex items-center rounded-md border
+      border-gray-300 bg-white px-4 py-2 text-sm font-medium hover:bg-gray-50
+      focus:z-20 dark:bg-gray-800"
+      onClick={action}
     >
-      {val}
-    </a>
+      <span>{val}</span>
+    </button>
   );
 }
 
 function Paginator({ currentPage, totalResults, setCurrentPage }) {
-  const navigate = useNavigate();
   let totalPages = Math.ceil(totalResults / BLITTER_APP_BLEAT_PAGE_SIZE);
   const maxPagesToShow = BLITTER_APP_BLEAT_MAX_PAGES;
   let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
@@ -58,78 +58,76 @@ function Paginator({ currentPage, totalResults, setCurrentPage }) {
 
   // Generate an array of page numbers to display
   const pages = [...Array(endPage - startPage + 1).keys()].map(
-    (i) => startPage + i
+    (i) => startPage + i,
   );
 
   return (
-    totalPages > 1 && (
-      <nav
-        className="isolate inline-flex -space-x-px rounded-md shadow-sm "
-        // className="top-0 z-10 bg-gray-800 fixed top-0 left-0 right-0 z-10"
-        aria-label="Pagination"
-      >
-        {currentPage > 1 && (
-          <button
-            className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 dark:bg-gray-800"
-            onClick={() => navigate(`/home?page=${currentPage - 1}`)}
-          >
-            <span className="sr-only">Previous</span>
-            <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
-          </button>
-        )}
+    <nav
+      className="isolate inline-flex -space-x-px rounded-md shadow-sm "
+      aria-label="Pagination"
+    >
+      {currentPage > 1 && (
+        <button
+          className="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 dark:bg-gray-800"
+          onClick={() => setCurrentPage((currentPage) => currentPage - 1)}
+        >
+          <span className="sr-only">Previous</span>
+          <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+        </button>
+      )}
 
-        {/* Render the "First" button if we're not on the first page */}
-        {currentPage > 1 && (
-          <Page
-            active={false}
-            val={"First"}
-            pos={2}
-            key={1}
-            target={1}
-            setCurrentPage={setCurrentPage}
-          />
-        )}
+      {/* Render the "First" button if we're not on the first page */}
+      {currentPage > 1 && (
+        <Page
+          active={false}
+          val={"First"}
+          pos={2}
+          key={1}
+          target={1}
+          setCurrentPage={setCurrentPage}
+        />
+      )}
 
-        {/* Render the page numbers */}
-        {pages.map((page) => (
-          <Page
-            val={page}
-            pos={
-              page == 1 && currentPage == 1
-                ? 0
-                : page == totalPages && currentPage == totalPages
-                ? 1
-                : 2
-            }
-            key={page}
-            target={page}
-            active={page == currentPage}
-            setCurrentPage={setCurrentPage}
-          />
-        ))}
+      {/* Render the page numbers */}
+      {pages.map((page) => (
+        <Page
+          val={page}
+          pos={
+            page == 1 && currentPage == 1
+              ? 0
+              : page == totalPages && currentPage == totalPages
+              ? 1
+              : 2
+          }
+          key={page}
+          target={page}
+          active={page == currentPage}
+          setCurrentPage={setCurrentPage}
+        />
+      ))}
 
-        {/* Render the "Last" button if we're not on the last page */}
-        {currentPage < totalPages && (
-          <Page
-            val={"Last"}
-            pos={2}
-            key={totalPages}
-            target={totalPages}
-            setCurrentPage={setCurrentPage}
-          />
-        )}
+      {/* Render the "Last" button if we're not on the last page */}
+      {currentPage < totalPages && (
+        <Page
+          active={false}
+          val={"Last"}
+          pos={2}
+          key={totalPages}
+          target={totalPages}
+          setCurrentPage={setCurrentPage}
+        />
+      )}
 
-        {currentPage < totalPages && (
-          <button
-            className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 dark:bg-gray-800"
-            onClick={() => navigate(`/home?page=${+currentPage + 1}`)}
-          >
-            <span className="sr-only">Next</span>
-            <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
-          </button>
-        )}
-      </nav>
-    )
+      {currentPage < totalPages && (
+        <button
+          className="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20 dark:bg-gray-800"
+          onClick={() => setCurrentPage((currentPage) => currentPage + 1)}
+        >
+          <span className="sr-only">Next</span>
+          <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
+        </button>
+      )}
+    </nav>
   );
 }
 
@@ -142,8 +140,21 @@ export default function PaginationFooter({
   return (
     <div className="bottom-0 fixed left-0 right-0 flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 text-gray-500 dark:bg-gray-900 dark:text-white sm:px-6">
       <div className="flex flex-1 justify-between sm:hidden">
-        {["Previous", "Next"].map((val) => (
-          <RoundedPage val={val} key={val} />
+        {[
+          {
+            val: "Previous",
+            func: () => {
+              setCurrentPage((currentPage) => currentPage - 1);
+            },
+          },
+          {
+            val: "Next",
+            func: () => {
+              setCurrentPage((currentPage) => currentPage + 1);
+            },
+          },
+        ].map(({ val, func }) => (
+          <RoundedPage val={val} action={func} />
         ))}
       </div>
 
@@ -163,7 +174,7 @@ export default function PaginationFooter({
               <span className="font-medium">
                 {Math.min(
                   totalResults,
-                  currentPage * BLITTER_APP_BLEAT_PAGE_SIZE
+                  currentPage * BLITTER_APP_BLEAT_PAGE_SIZE,
                 )}
               </span>{" "}
               of <span className="font-medium">{totalResults}</span> results

@@ -8,25 +8,26 @@ import {
 import { Fragment, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getApiConfigurationFactory } from "../api/FactoryProvider";
-import { BleatsApi, FavouriteApi } from "../generated-sources/openapi";
-import { getHumanReadableDate } from "../utils/utils";
+import {
+  BleatsApi,
+  FavouriteApi,
+  BleatRes,
+} from "../generated-sources/openapi";
+import { classNames, getHumanReadableDate } from "../utils/utils";
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(" ");
-}
-function BleatImage({ bleato }) {
-  if (bleato.image) {
-    return (
-      <img
-        className="mt-2 rounded-2xl border border-gray-100 dark:border-gray-700"
-        src={bleato.authorProfileUrl}
-        alt="Bleat Image"
-      />
-    );
-  } else {
-    return <></>;
-  }
-}
+// function BleatImage({ bleato }) {
+//   if (bleato.image) {
+//     return (
+//       <img
+//         className="mt-2 rounded-2xl border border-gray-100 dark:border-gray-700"
+//         src={bleato.authorProfileUrl}
+//         alt="Bleat Image"
+//       />
+//     );
+//   } else {
+//     return <></>;
+//   }
+// }
 
 export default function BleatCard({ bleat, setBleats }) {
   const navigate = useNavigate();
@@ -46,7 +47,6 @@ export default function BleatCard({ bleat, setBleats }) {
       event.stopPropagation();
       const response = await bleatsApi.deleteBleat(bleat.id);
       setBleats((prevBleats) => prevBleats.filter((bl) => bl.id !== bleat.id));
-      navigate("/home");
     } catch (error) {
       console.log(error);
     }
@@ -71,7 +71,7 @@ export default function BleatCard({ bleat, setBleats }) {
         <p className="mt-3 block text-xl leading-snug text-black dark:text-white">
           {bleat.message}
         </p>
-        <BleatImage bleato={bleat} />
+        {/* <BleatImage bleato={bleat} /> */}
         <p className="my-0.5 py-1 text-base text-gray-500 dark:text-gray-400">
           {getHumanReadableDate(bleat.createdDate)}
         </p>
@@ -259,10 +259,9 @@ export default function BleatCard({ bleat, setBleats }) {
         setAuthorLiked(true);
         setLikeCount((likeCount) => likeCount + 1);
       } else {
-
         await favoritesApi.unlikeBleat(bleat.id);
         setAuthorLiked(false);
-        setLikeCount((likeCount) => likeCount -1);
+        setLikeCount((likeCount) => likeCount - 1);
       }
     } catch (error) {
       console.log(error);
@@ -272,7 +271,6 @@ export default function BleatCard({ bleat, setBleats }) {
   return (
     <div
       className="cursor-pointer items-center justify-center p-4 "
-      // "transition-transform transition-shadow ease-in-out duration-300 transform hover:scale-105 hover:shadow-lg"
       onClick={handleBleatClick}
     >
       <div className="space-y-4 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-800">
@@ -330,7 +328,7 @@ export default function BleatCard({ bleat, setBleats }) {
                       <div
                         className={classNames(
                           "block cursor-pointer px-4 py-2 text-sm",
-                          active ? " bg-gray-900 text-gray-50" : ""
+                          active ? " bg-gray-900 text-gray-50" : "",
                         )}
                         onClick={handleEdit}
                       >
@@ -343,7 +341,7 @@ export default function BleatCard({ bleat, setBleats }) {
                       <div
                         className={classNames(
                           "block cursor-pointer px-4 py-2 text-sm",
-                          active ? "bg-red-600 text-gray-50 " : ""
+                          active ? "bg-red-600 text-gray-50 " : "",
                         )}
                         onClick={handleDelete}
                       >

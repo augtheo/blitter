@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Fieldv3, Passwordv3 } from "../utils/Forms";
+import { Fieldv3, Passwordv3 } from "../components/Forms";
 import Base from "./Base";
 import { Link, useNavigate } from "react-router-dom";
-import { AlertMessage } from "../alerts";
+import { AlertMessage } from "../components/Alert";
 
 import { AuthenticationApi, Configuration } from "../generated-sources/openapi";
 

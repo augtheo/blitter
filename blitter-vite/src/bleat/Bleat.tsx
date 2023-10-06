@@ -1,6 +1,5 @@
 import React from "react";
 import BleatCard from "../bleat/BleatCard";
-import axios from "../utils/axios";
 import { useEffect } from "react";
 import { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
@@ -10,10 +9,10 @@ import {
   PaginatedBleats,
 } from "../generated-sources/openapi";
 
-import configuration from "../utils/ClientConfig";
-import JwtAuthApiConfigurationFactory from "../api/JwtAuthApiConfigurationFactory";
 import BleatList from "./BleatList";
 import { BLITTER_APP_BLEAT_PAGE_SIZE } from "../utils/constant";
+import Hr from "../components/Hr";
+import { getApiConfigurationFactory } from "../api/FactoryProvider";
 
 export default function Bleat() {
   const { id } = useParams();
@@ -28,9 +27,7 @@ export default function Bleat() {
   const [totalPages, setTotalPages] = useState(0);
   const [totalResults, setTotalResults] = useState(0);
 
-  const bleatsApi: BleatsApi = new BleatsApi(
-    new JwtAuthApiConfigurationFactory().createApiConfiguration(),
-  );
+  const bleatsApi: BleatsApi = new BleatsApi(getApiConfigurationFactory());
   useEffect(() => {
     window.scrollTo(0, 0);
     (async () => {
@@ -49,7 +46,7 @@ export default function Bleat() {
         setTotalResults(bleatRepliesRes.data.total_bleats);
         setTotalPages(bleatRepliesRes.data.total_pages);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error(error);
       }
     })();
   }, []);
@@ -57,9 +54,9 @@ export default function Bleat() {
   return (
     bleat &&
     bleatReplies && (
-      <div className="min-h-screen  grow ">
+      <>
         <BleatCard bleat={bleat} key={bleat.id} setBleats={setBleatReplies} />
-        <hr className="mx-auto my-4 h-1 w-48 rounded border-0 bg-gray-100 dark:bg-gray-700 md:my-10" />
+        <Hr />
         <BleatList
           bleats={bleatReplies}
           setBleats={setBleatReplies}
@@ -68,7 +65,7 @@ export default function Bleat() {
           totalPages={totalPages}
           totalResults={totalResults}
         />
-      </div>
+      </>
     )
   );
 }

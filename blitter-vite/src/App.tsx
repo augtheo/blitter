@@ -1,5 +1,4 @@
 import React from "react";
-import FourZeroFour from "./FourZeroFour";
 import NavBar from "./NavBar";
 import Login from "./auth/Login";
 import Register from "./auth/Register";
@@ -7,11 +6,11 @@ import FeedWrapper from "./bleat/FeedWrapper";
 import { useState, useEffect } from "react";
 import { Route, Routes } from "react-router-dom";
 import UnderMaintenance from "./UnderMaintenance";
-import DismissableAlert, { AlertMessage } from "./alerts";
+import DismissableAlert, { AlertMessage } from "./components/Alert";
 
 export default function App() {
   const [darkMode, setDarkMode] = useState(
-    localStorage.getItem("darkMode") || "true"
+    localStorage.getItem("darkMode") || "true",
   );
 
   const [alertMessages, setAlertMessages] = useState<AlertMessage[]>([]);
@@ -54,7 +53,7 @@ export default function App() {
                   darkMode={darkMode}
                   setDarkMode={setDarkMode}
                 />
-                <FeedWrapper route={"/home"} />
+                <FeedWrapper />
               </div>
             }
           ></Route>

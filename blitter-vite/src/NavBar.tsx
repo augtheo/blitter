@@ -7,8 +7,8 @@ import { useNavigate, Outlet, Link } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
 
-import DismissableAlert from "./alerts";
-import { UsersApi } from "./generated-sources/openapi";
+import DismissableAlert from "./components/Alert";
+import { AuthorRes, UsersApi } from "./generated-sources/openapi";
 import { getApiConfigurationFactory } from "./api/FactoryProvider";
 
 function classNames(...classes) {
@@ -29,7 +29,7 @@ function AuthenticatedUserOptions({ author, navigate }) {
             to={"/users/" + author.username}
             className={classNames(
               active ? " bg-gray-900 text-gray-50" : "",
-              "block px-4 py-2 text-sm "
+              "block px-4 py-2 text-sm ",
             )}
           >
             Your Profile
@@ -42,7 +42,7 @@ function AuthenticatedUserOptions({ author, navigate }) {
             href="#"
             className={classNames(
               active ? " bg-gray-900 text-gray-50" : "",
-              "block px-4 py-2 text-sm "
+              "block px-4 py-2 text-sm ",
             )}
           >
             Settings
@@ -56,7 +56,7 @@ function AuthenticatedUserOptions({ author, navigate }) {
             onClick={handleLogout}
             className={classNames(
               active ? "bg-red-600 text-gray-50 " : "",
-              "block px-4 py-2 text-sm "
+              "block px-4 py-2 text-sm ",
             )}
           >
             Sign out
@@ -81,7 +81,7 @@ function UnAuthenticatedUserOptions({ navigate }) {
             to={"/login/"}
             className={classNames(
               active ? " bg-gray-900 text-gray-50" : "",
-              "block px-4 py-2 text-sm "
+              "block px-4 py-2 text-sm ",
             )}
           >
             Login
@@ -102,7 +102,7 @@ export default function NavBar({
     { name: "Home", href: "/home", current: currentNav === "Home" },
     { name: "Feed", href: "/feed", current: currentNav === "Feed" },
   ];
-  const [author, setAuthor] = useState({});
+  const [author, setAuthor] = useState<AuthorRes>({});
   const navigate = useNavigate();
   const configuration = getApiConfigurationFactory();
   const usersApi: UsersApi = new UsersApi(configuration);
@@ -170,7 +170,7 @@ export default function NavBar({
                             item.current
                               ? "bg-gray-900 text-white"
                               : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                            "rounded-md px-3 py-2 text-sm font-medium"
+                            "rounded-md px-3 py-2 text-sm font-medium",
                           )}
                           aria-current={item.current ? "page" : undefined}
                         >
@@ -297,7 +297,7 @@ export default function NavBar({
                       item.current
                         ? "bg-gray-900 text-white"
                         : "text-gray-300 hover:bg-gray-700 hover:text-white",
-                      "block rounded-md px-3 py-2 text-base font-medium"
+                      "block rounded-md px-3 py-2 text-base font-medium",
                     )}
                     aria-current={item.current ? "page" : undefined}
                   >

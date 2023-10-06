@@ -3,6 +3,6 @@ export const getHumanReadableDate = (date) => {
   return _date.toDateString();
 };
 
-export function classNames(...classes) {
+export function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }

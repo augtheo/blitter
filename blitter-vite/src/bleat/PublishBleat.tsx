@@ -1,12 +1,11 @@
 import { PhotoIcon } from "@heroicons/react/24/outline";
 import React from "react";
 import { BleatReq, BleatsApi } from "../generated-sources/openapi";
-import JwtAuthApiConfigurationFactory from "../api/JwtAuthApiConfigurationFactory";
+import { getApiConfigurationFactory } from "../api/FactoryProvider";
 
 export default function PublishBleat({ setPublishBleat }) {
-  const bleatsApi: BleatsApi = new BleatsApi(
-    new JwtAuthApiConfigurationFactory().createApiConfiguration()
-  );
+  const configuration = getApiConfigurationFactory();
+  const bleatsApi: BleatsApi = new BleatsApi(configuration);
   const handleSubmit = async (event) => {
     try {
       event.preventDefault();

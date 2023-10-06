@@ -1,11 +1,10 @@
-import { Fieldv2, Fieldv3, Passwordv2, Passwordv3 } from "../utils/Forms";
+import { Fieldv3, Passwordv3 } from "../components/Forms";
 import React from "react";
-import axios from "../utils/axios";
 import Base from "./Base";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { RegisterReq, UsersApi } from "../generated-sources/openapi";
-import NoAuthApiConfigurationFactory from "../api/NoAuthApiFactory";
+import { getApiConfigurationFactory } from "../api/FactoryProvider";
 
 export function RegisterBase() {
   const navigate = useNavigate();
@@ -18,9 +17,7 @@ export function RegisterBase() {
     event.preventDefault();
 
     try {
-      const usersApi: UsersApi = new UsersApi(
-        new NoAuthApiConfigurationFactory().createApiConfiguration()
-      );
+      const usersApi: UsersApi = new UsersApi(getApiConfigurationFactory());
       const response = await usersApi.createUser(registerForm);
       if (response.status === 200) {
         navigate("/login");

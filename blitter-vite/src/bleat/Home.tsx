@@ -26,8 +26,7 @@ export default function Home({ followingOnly }) {
   useEffect(() => {
     (async () => {
       try {
-        var response;
-        response = await bleatsApiAuth.getBleats(
+        const response = await bleatsApiAuth.getBleats(
           currentPage - 1,
           BLITTER_APP_BLEAT_MAX_PAGES,
           followingOnly,
@@ -39,7 +38,7 @@ export default function Home({ followingOnly }) {
           setBleats(response.data.bleats);
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error(error);
       }
     })();
   }, [currentPage, followingOnly]);
