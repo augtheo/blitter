@@ -1,7 +1,13 @@
 import React from "react";
-import Logo from "./utils/Logo";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import {
+  Bars3Icon,
+  BellIcon,
+  MagnifyingGlassIcon,
+  MoonIcon,
+  SunIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 import { Fragment } from "react";
 import { useNavigate, Outlet, Link } from "react-router-dom";
 import { useState } from "react";
@@ -10,6 +16,7 @@ import { useEffect } from "react";
 import DismissableAlert from "./components/Alert";
 import { AuthorRes, UsersApi } from "./generated-sources/openapi";
 import { getApiConfigurationFactory } from "./api/FactoryProvider";
+import Logo from "./components/Logo";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -102,7 +109,9 @@ export default function NavBar({
     { name: "Home", href: "/home", current: currentNav === "Home" },
     { name: "Feed", href: "/feed", current: currentNav === "Feed" },
   ];
-  const [author, setAuthor] = useState<AuthorRes>({});
+  const [author, setAuthor] = useState<AuthorRes>({
+    profileUrl: "https://robohash.org/anonymous.png",
+  });
   const navigate = useNavigate();
   const configuration = getApiConfigurationFactory();
   const usersApi: UsersApi = new UsersApi(configuration);
@@ -112,7 +121,7 @@ export default function NavBar({
       try {
         const authorRes = await usersApi.getSelf();
         if (authorRes.status === 200) {
-          setAuthor(authorRes.data);
+          if (authorRes.data.profileUrl != null) setAuthor(authorRes.data);
         }
       } catch (error) {
         setAuthor({
@@ -148,15 +157,8 @@ export default function NavBar({
                     )}
                   </Disclosure.Button>
                 </div>
-                <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                  <div className="flex flex-shrink-0 items-center">
-                    <img
-                      className="block h-8 w-auto lg:hidden"
-                      src="./logo.png"
-                      alt="Blitter"
-                    />
-                    <Logo />
-                  </div>
+                <div className="flex flex-1 items-center justify-start">
+                  <Logo />
                   <div className="hidden sm:ml-6 sm:block">
                     <div className="flex space-x-4">
                       {navigation.map((item) => (
@@ -183,36 +185,17 @@ export default function NavBar({
 
                 <div className="relative">
                   <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                    <svg
-                      className="h-5 w-5 text-gray-400"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                    >
-                      <path
-                        d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      ></path>
-                    </svg>
+                    <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
                   </span>
 
                   <input
                     type="text"
-                    className=" rounded-md border bg-white py-2 pl-10 pr-4 text-gray-700 focus:border-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-40 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-blue-300"
+                    className="rounded-md border bg-white py-2 pl-10 pr-4 text-gray-700  dark: dark:bg-gray-900 dark:text-gray-300 "
                     placeholder="Search"
                   />
                 </div>
 
-                <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                  {/* <button */}
-                  {/*   type="button" */}
-                  {/*   className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800" */}
-                  {/* > */}
-                  {/*   <span className="sr-only">View notifications</span> */}
-                  {/*   <BellIcon className="h-6 w-6" aria-hidden="true" /> */}
-                  {/* </button> */}
+                <div className="flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                   <button
                     id="theme-toggle"
                     type="button"
@@ -221,33 +204,18 @@ export default function NavBar({
                       setDarkMode(darkMode === "true" ? "false" : "true")
                     }
                   >
-                    {" "}
-                    <svg
-                      id="theme-toggle-dark-icon"
+                    <MoonIcon
+                      fill="currentColor"
                       className={
                         darkMode === "true" ? "h-5 w-5" : "hidden h-5 w-5"
                       }
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-                    </svg>
-                    <svg
-                      id="theme-toggle-light-icon"
+                    />
+                    <SunIcon
                       className={
                         darkMode === "true" ? "hidden h-5 w-5" : "h-5 w-5"
                       }
                       fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-                        fillRule="evenodd"
-                        clipRule="evenodd"
-                      ></path>
-                    </svg>
+                    />
                   </button>
                   {/* Profile dropdown */}
                   <Menu as="div" className="relative ml-3">

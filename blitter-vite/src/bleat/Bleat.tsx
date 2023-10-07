@@ -1,13 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import BleatCard from "../bleat/BleatCard";
-import { useEffect } from "react";
-import { useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
-import {
-  BleatRes,
-  BleatsApi,
-  PaginatedBleats,
-} from "../generated-sources/openapi";
+import { BleatRes, BleatsApi } from "../generated-sources/openapi";
 
 import BleatList from "./BleatList";
 import { BLITTER_APP_BLEAT_PAGE_SIZE } from "../utils/constant";
@@ -29,7 +23,6 @@ export default function Bleat() {
 
   const bleatsApi: BleatsApi = new BleatsApi(getApiConfigurationFactory());
   useEffect(() => {
-    window.scrollTo(0, 0);
     (async () => {
       try {
         const [bleatRes, bleatRepliesRes] = await Promise.all([
